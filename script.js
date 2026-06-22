@@ -696,26 +696,39 @@ function calcAQI(pm25) {
 }
 
 function getNarrativeText(current) {
-    const id = current.weather[0].id;
-    const now = Math.floor(Date.now() / 1000);
-    const isNight = now < current.sys.sunrise || now > current.sys.sunset;
+    const feels = Math.round(current.main.feels_like);
+    const humidity = current.main.humidity;
     const windSpeed = Math.round((current.wind.speed * 3600) / 1000); // km/h
+    const id = current.weather[0].id;
+    const isNight = current.weather[0].icon.includes('n');
 
-    if (id >= 200 && id < 300) return `"I'd highly recommend staying indoors and keeping warm; there's a storm out there."`;
-    if (id >= 300 && id < 500) return `"You might want to grab a warm drink—it's the perfect weather for a cozy morning coffee."`;
-    if (id >= 500 && id < 600) return `"Make sure you carry an umbrella this ${isNight ? 'evening' : 'afternoon'}, you're going to need it."`;
-    if (id >= 600 && id < 700) return `"Bundle up if you're heading out, and please drive carefully in the snow!"`;
-    if (id >= 700 && id < 800) return `"I'd suggest taking it slow on the roads today; visibility is quite low due to the mist."`;
-    
-    if (id === 800) {
-        if (isNight) return `"You should definitely look up tonight—it's an ideal time for stargazing."`;
-        if (windSpeed > 15) return `"It's a beautiful, breezy day out there. I'd suggest planning some outdoor activities!"`;
-        return `"It's absolutely perfect outside. You should take a moment for a refreshing walk."`;
+    let phrase1 = "";
+    if (humidity > 70) {
+        phrase1 = `The air is heavy with humidity, feeling like ${feels}°C.`;
+    } else if (humidity < 30) {
+        phrase1 = `The crisp, dry air makes it feel like ${feels}°C out there.`;
+    } else {
+        phrase1 = `It currently feels exactly like ${feels}°C out there.`;
     }
-    
-    if (id === 801 || id === 802) return `"It's a really well-balanced, beautiful day. Perfect for leaving the windows open."`;
-    
-    return `"It's a quiet, overcast day. I'd suggest putting on some good music and relaxing."`;
+
+    let phrase2 = "";
+    if (windSpeed > 20) {
+        phrase2 = "Strong, sweeping winds carry the weather with force.";
+    } else if (windSpeed > 5) {
+        phrase2 = "A gentle breeze brings a refreshing touch to the atmosphere.";
+    } else {
+        phrase2 = "The air is still and calm, settling quietly around you.";
+    }
+
+    let phrase3 = "";
+    if (id >= 200 && id < 600) phrase3 = "I'd highly recommend carrying an umbrella and keeping warm.";
+    else if (id >= 600 && id < 700) phrase3 = "Bundle up if you're heading out into the snow.";
+    else if (feels < 10) phrase3 = "Consider layering up with a warm jacket.";
+    else if (feels > 30) phrase3 = "Stay hydrated and seek shade if you're heading out.";
+    else if (isNight && id === 800) phrase3 = "It's an ideal time for stargazing.";
+    else phrase3 = "It's absolutely perfect outside. You should take a moment for a refreshing walk.";
+
+    return `${phrase1} ${phrase2} ${phrase3}`;
 }
 
 // ==========================================

@@ -43,11 +43,11 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Geist', sans-serif;
+    font-family: 'Inter', "SF Pro Display", sans-serif;
 }
 
 .font-story {
-    font-family: 'Geist', sans-serif;
+    font-family: 'Inter', "SF Pro Display", sans-serif;
 }
 
 .val-large, .temperature, #city-name, .hourly-temp {
@@ -824,8 +824,10 @@ body {
 }
 
 .hourly-header h3, .card-header h4 {
-    font-size: 1.1rem;
+    font-size: 0.75rem;
     font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
     color: var(--text-secondary);
     margin-bottom: 1.5rem;
     display: flex;
@@ -969,9 +971,10 @@ body {
 }
 
 .val-huge {
-    font-size: 3.5rem;
-    font-weight: 200;
+    font-size: 2rem;
+    font-weight: 300;
     line-height: 1;
+    letter-spacing: -0.5px;
     color: var(--text-main);
 }
 
