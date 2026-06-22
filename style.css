@@ -171,18 +171,35 @@ body {
 
 .glass-panel {
     background: var(--glass-2);
-    backdrop-filter: blur(30px);
-    -webkit-backdrop-filter: blur(30px);
+    backdrop-filter: blur(30px) saturate(150%);
+    -webkit-backdrop-filter: blur(30px) saturate(150%);
     border: 1px solid var(--glass-border);
     border-radius: 24px;
     position: relative;
     overflow: hidden;
-    /* Colored Shadows instead of pure black */
+    /* 8-Layer Shadow/Glow Stack */
     box-shadow: 
-        0 8px 32px 0 rgba(11, 11, 12, 0.7),
+        0 8px 32px 0 rgba(11, 11, 12, 0.5),
+        0 2px 8px 0 rgba(11, 11, 12, 0.3),
         0 0 20px var(--theme-shadow),
-        inset 0 1px 1px var(--glass-highlight);
-    transition: transform 0.4s var(--ease-fluid), box-shadow 0.4s var(--ease-fluid), border-color 0.4s var(--ease-fluid);
+        inset 0 1px 2px var(--glass-highlight),
+        inset 0 -1px 2px rgba(0,0,0,0.2);
+    transition: box-shadow 0.4s var(--ease-fluid), border-color 0.4s var(--ease-fluid);
+    animation: glass-float 6s ease-in-out infinite;
+}
+
+@keyframes glass-float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-3px); }
+}
+
+.glass-panel::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
 }
 
 .glass-panel::before {
@@ -213,12 +230,15 @@ body {
 }
 
 .glass-panel:hover {
-    transform: translateY(-2px);
+    animation-play-state: paused;
+    transform: translateY(-5px);
     border-color: var(--glass-highlight);
     box-shadow: 
-        0 12px 40px 0 rgba(11, 11, 12, 0.8),
+        0 12px 40px 0 rgba(11, 11, 12, 0.6),
+        0 4px 12px 0 rgba(11, 11, 12, 0.4),
         0 0 30px var(--theme-shadow),
-        inset 0 1px 2px var(--glass-highlight);
+        inset 0 1px 2px var(--glass-highlight),
+        inset 0 -1px 2px rgba(0,0,0,0.2);
 }
 
 .hidden {
@@ -953,7 +973,51 @@ body {
 }
 
 /* Wind Compass */
-.wind-viz {
+/* ==========================================
+   METRIC CARD VISUALIZATIONS
+   ========================================== */
+
+/* Wind Particles */
+.wind-particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.wind-particle {
+    position: absolute;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    animation: wind-blow linear infinite;
+    border-radius: 1px;
+}
+
+@keyframes wind-blow {
+    0% { transform: translateX(-100%); opacity: 0; }
+    20% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { transform: translateX(200%); opacity: 0; }
+}
+
+/* Water Wave */
+.water-wave {
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 100'%3E%3Cpath d='M0,50 Q25,25 50,50 T100,50 T150,50 T200,50 L200,100 L0,100 Z' fill='black'/%3E%3C/svg%3E");
+    mask-size: 50% 100%;
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 100'%3E%3Cpath d='M0,50 Q25,25 50,50 T100,50 T150,50 T200,50 L200,100 L0,100 Z' fill='black'/%3E%3C/svg%3E");
+    -webkit-mask-size: 50% 100%;
+    animation: wave-slide 4s linear infinite;
+}
+
+@keyframes wave-slide {
+    0% { background-position-x: 0; }
+    100% { background-position-x: -80px; /* Width of the container */ }
+}
+
+.ring-viz {
     display: flex;
     align-items: center;
     justify-content: space-around;

@@ -68,23 +68,20 @@
                         <p id="date-time" class="date-time"><span class="skeleton-text">Loading time...</span></p>
                     </div>
                     
-                    <div class="weather-center">
-                        <div class="weather-icon-wrapper" id="hero-icon-wrapper">
+                    <div class="weather-center" style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem; margin: 2rem 0;">
+                        <div class="weather-icon-wrapper" id="hero-icon-wrapper" style="margin-bottom: -1rem;">
                             <div id="weather-emoji" class="hero-emoji"></div>
                             <div class="icon-glow"></div>
                         </div>
-                        <div class="temp-wrapper">
+                        <div class="temp-wrapper" style="display: flex; align-items: flex-start;">
                             <span id="temperature" class="temperature"><span class="skeleton-text">--</span></span>
-                            <span class="unit">°</span>
+                            <span class="unit" style="font-size: 3rem; margin-top: 1rem; font-weight: 200;">°</span>
                         </div>
-                    </div>
-                    
-                    <div class="hero-footer">
-                        <div class="condition-wrapper">
-                            <p id="weather-condition" class="weather-condition"><span class="skeleton-text">condition</span></p>
-                            <p id="weather-phrase" class="weather-phrase"><span class="skeleton-text">loading details</span></p>
+                        <p id="weather-condition" class="weather-condition" style="font-size: 1.5rem; text-transform: capitalize; letter-spacing: 1px; margin-bottom: 0.5rem;"><span class="skeleton-text">condition</span></p>
+                        <div class="hero-badges" style="display: flex; gap: 1rem; align-items: center;">
+                            <p id="feels-like" class="feels-like" style="font-size: 1.2rem; opacity: 0.9; margin: 0;"><span class="skeleton-text">Feels like --°</span></p>
+                            <span id="hero-aqi-badge" style="background: rgba(0,0,0,0.2); padding: 4px 12px; border-radius: 12px; font-size: 0.9rem; border: 1px solid rgba(255,255,255,0.1);"><span class="skeleton-text">AQI: --</span></span>
                         </div>
-                        <p id="feels-like" class="feels-like"><span class="skeleton-text">Feels like --°</span></p>
                     </div>
                 </div>
                 <!-- Shimmer Reflection -->
@@ -107,11 +104,12 @@
             <section class="story-section metrics-section scroll-reveal">
                 <div class="metrics-grid">
                     <!-- Wind Compass -->
-                    <div class="detail-card square-card glass-panel metric-card" data-type="wind">
-                        <div class="card-header">
+                    <div class="detail-card square-card glass-panel metric-card" data-type="wind" style="position: relative; overflow: hidden;">
+                        <div class="wind-particles" id="wind-particles"></div>
+                        <div class="card-header" style="position: relative; z-index: 2;">
                             <h4><i class="fas fa-wind"></i> Wind</h4>
                         </div>
-                        <div class="wind-viz">
+                        <div class="wind-viz" style="position: relative; z-index: 2;">
                             <div class="compass" id="wind-compass">
                                 <div class="compass-marks"></div>
                                 <div class="arrow"><i class="fas fa-location-arrow"></i></div>
@@ -129,13 +127,12 @@
                         <div class="card-header">
                             <h4><i class="fas fa-tint"></i> Humidity</h4>
                         </div>
-                        <div class="ring-viz">
-                            <svg viewBox="0 0 100 100">
-                                <circle class="bg" cx="50" cy="50" r="40"></circle>
-                                <circle class="progress" id="humidity-ring" cx="50" cy="50" r="40"></circle>
-                            </svg>
-                            <div class="ring-content">
-                                <p id="humidity-val" class="val-large"><span class="skeleton-text">--</span></p>
+                        <div class="ring-viz" style="position: relative;">
+                            <div class="water-container" style="width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--glass-border); position: relative; overflow: hidden; margin: 0 auto;">
+                                <div id="humidity-wave" class="water-wave" style="position: absolute; bottom: 0; left: 0; width: 200%; height: 100%; background: var(--theme-1); opacity: 0.6; transform: translateY(100%); transition: transform 1.5s var(--ease-fluid);"></div>
+                            </div>
+                            <div class="ring-content" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">
+                                <p id="humidity-val" class="val-large" style="font-size: 2rem;"><span class="skeleton-text">--</span></p>
                                 <p class="val-label">%</p>
                             </div>
                         </div>
@@ -146,14 +143,15 @@
                         <div class="card-header">
                             <h4><i class="fas fa-tachometer-alt"></i> Pressure</h4>
                         </div>
-                        <div class="viz-center" style="margin-top: 1rem;">
+                        <div class="viz-center" style="margin-top: 1rem; z-index: 2;">
                             <p id="pressure-val" class="val-large"><span class="skeleton-text">--</span></p>
                             <p class="val-label">hPa</p>
                         </div>
-                        <div class="sparkline-container" style="height: 35px; width: 100%; margin-top: auto;">
-                            <svg viewBox="0 0 100 35" preserveAspectRatio="none" style="width: 100%; height: 100%; overflow: visible;">
-                                <path id="pressure-sparkline" d="M0,25 Q20,15 40,30 T80,5 T100,15" fill="none" stroke="var(--theme-1)" stroke-width="2" stroke-linecap="round"></path>
-                                <circle id="pressure-sparkline-dot" cx="100" cy="15" r="3" fill="var(--theme-1)"></circle>
+                        <div class="gauge-container" style="position: relative; width: 100%; height: 60px; margin-top: auto;">
+                            <svg viewBox="0 0 100 50" style="width: 100%; height: 100%; overflow: visible;">
+                                <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="var(--glass-2)" stroke-width="6" stroke-linecap="round"></path>
+                                <path id="pressure-gauge" d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="var(--theme-1)" stroke-width="6" stroke-linecap="round" stroke-dasharray="125.6" stroke-dashoffset="125.6" style="transition: stroke-dashoffset 1.5s var(--ease-fluid);"></path>
+                                <circle id="pressure-needle" cx="10" cy="50" r="4" fill="var(--text-main)" style="transition: transform 1.5s var(--ease-fluid); transform-origin: 50px 50px;"></circle>
                             </svg>
                         </div>
                         <p class="trend-text" id="pressure-trend" style="text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">↗ Rising</p>
@@ -164,17 +162,23 @@
                         <div class="card-header">
                             <h4><i class="far fa-eye"></i> Visibility</h4>
                         </div>
-                        <div class="ring-viz" style="margin: auto 0;">
-                            <svg viewBox="0 0 100 100">
-                                <circle class="bg" cx="50" cy="50" r="40"></circle>
-                                <circle class="progress" id="vis-ring" cx="50" cy="50" r="40"></circle>
+                        <div class="visibility-viz" style="position: relative; height: 100px; width: 100%; overflow: hidden; margin: auto 0; border-radius: 12px; background: rgba(0,0,0,0.1);">
+                            <!-- Far mountains -->
+                            <svg viewBox="0 0 100 50" preserveAspectRatio="none" style="position: absolute; bottom: 0; width: 100%; height: 60%; opacity: 0.5;">
+                                <path d="M0,50 L20,20 L40,40 L70,10 L100,50 Z" fill="var(--theme-2)"></path>
                             </svg>
-                            <div class="ring-content">
-                                <p id="visibility-val" class="val-large"><span class="skeleton-text">--</span></p>
+                            <!-- Near mountains -->
+                            <svg viewBox="0 0 100 50" preserveAspectRatio="none" style="position: absolute; bottom: 0; width: 100%; height: 40%; opacity: 0.8;">
+                                <path d="M0,50 L30,30 L50,45 L80,25 L100,50 Z" fill="var(--theme-1)"></path>
+                            </svg>
+                            <!-- Fog overlay -->
+                            <div id="vis-fog-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(180deg, transparent, rgba(255,255,255,0.9)); transition: opacity 1.5s var(--ease-fluid);"></div>
+                            <div style="position: absolute; top: 10px; left: 10px; z-index: 2; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">
+                                <p id="visibility-val" class="val-large" style="font-size: 2.5rem; line-height: 1;"><span class="skeleton-text">--</span></p>
                                 <p class="val-label">km</p>
                             </div>
                         </div>
-                        <p class="trend-text" id="vis-trend" style="text-align: center; font-size: 0.85rem; color: var(--text-muted);">Perfectly clear</p>
+                        <p class="trend-text" id="vis-trend" style="text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">Perfectly clear</p>
                     </div>
                 </div>
             </section>
@@ -228,25 +232,48 @@
                     <div class="card-header">
                         <h4><i class="fas fa-leaf"></i> Air Quality</h4>
                     </div>
-                    <div class="aqi-viz" style="padding: 2rem 0;">
-                        <p id="aqi-val" class="val-huge" style="font-size: 4rem;">--</p>
-                        <p id="aqi-desc" class="aqi-desc" style="font-size: 1.5rem;">--</p>
-                        <div class="aqi-bar" style="height: 12px; max-width: 500px; margin: 1.5rem auto;">
-                            <div class="aqi-progress" id="aqi-progress"></div>
+                    <div class="aqi-viz" style="padding: 1rem 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+                            <div>
+                                <p id="aqi-val" class="val-huge" style="font-size: 4rem; line-height: 1;"><span class="skeleton-text">--</span></p>
+                                <p id="aqi-desc" class="aqi-desc" style="font-size: 1.5rem; margin-top: 0.5rem;"><span class="skeleton-text">--</span></p>
+                            </div>
+                            <div style="text-align: right;">
+                                <p id="aqi-pollutant" style="font-size: 1.2rem; color: var(--text-secondary);"><span class="skeleton-text">PM2.5: --</span></p>
+                            </div>
                         </div>
-                        <p id="aqi-text-desc" class="aqi-text-desc" style="font-size: 1.2rem;">--</p>
+                        
+                        <div class="aqi-segments" style="display: flex; height: 12px; border-radius: 6px; overflow: hidden; margin: 1.5rem 0; gap: 4px;">
+                            <div style="flex: 1; background: #4caf50; opacity: 0.2; transition: opacity 0.5s;" id="aqi-seg-1"></div>
+                            <div style="flex: 1; background: #ffeb3b; opacity: 0.2; transition: opacity 0.5s;" id="aqi-seg-2"></div>
+                            <div style="flex: 1; background: #ff9800; opacity: 0.2; transition: opacity 0.5s;" id="aqi-seg-3"></div>
+                            <div style="flex: 1; background: #f44336; opacity: 0.2; transition: opacity 0.5s;" id="aqi-seg-4"></div>
+                            <div style="flex: 1; background: #9c27b0; opacity: 0.2; transition: opacity 0.5s;" id="aqi-seg-5"></div>
+                        </div>
+                        
+                        <ul id="aqi-advice-list" style="list-style: none; padding: 0; margin: 0; color: var(--text-secondary); line-height: 1.8; font-size: 1.1rem;">
+                            <li><span class="skeleton-text" style="width: 80%;"></span></li>
+                            <li><span class="skeleton-text" style="width: 60%;"></span></li>
+                        </ul>
                     </div>
                 </div>
             </section>
 
             <!-- Footer / Poetic Weather Insight -->
             <section class="story-section footer-section scroll-reveal">
-                <div class="detail-card wide-card glass-panel" data-type="poetry" style="width: 100%; max-width: 800px; margin: 0 auto;">
-                    <div class="card-header" style="justify-content: center;">
-                        <h4><i class="fas fa-feather-alt"></i> Feels Like</h4>
+                <div class="detail-card wide-card glass-panel" data-type="poetry" style="width: 100%; max-width: 800px; margin: 0 auto; text-align: left;">
+                    <div class="card-header">
+                        <h4><i class="fas fa-robot"></i> AI Insight</h4>
                     </div>
-                    <div class="viz-center" style="text-align: center; padding: 2rem;">
-                        <p id="poetic-text" style="font-size: 1.6rem; font-style: italic; font-weight: 300; line-height: 1.5; color: var(--text-main);">--</p>
+                    <div class="viz-center" style="padding: 2rem;">
+                        <p id="poetic-text" style="font-size: 1.4rem; font-weight: 400; line-height: 1.6; color: var(--text-main); margin-bottom: 1.5rem;"><span class="skeleton-text" style="width: 100%;"></span></p>
+                        <div style="background: rgba(0,0,0,0.1); border-radius: 12px; padding: 1.5rem; border: 1px solid var(--glass-border);">
+                            <p style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted); margin-bottom: 1rem;">Recommended</p>
+                            <ul id="ai-recommendations" style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.8rem; font-size: 1.1rem; color: var(--text-secondary);">
+                                <li><span class="skeleton-text" style="width: 50%;"></span></li>
+                                <li><span class="skeleton-text" style="width: 60%;"></span></li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </section>

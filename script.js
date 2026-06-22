@@ -280,7 +280,61 @@ async function fetchWeatherDataByCoords(lat, lon) {
         DOM.loading.classList.add('hidden');
         DOM.errorText.textContent = err.message;
         DOM.error.classList.remove('hidden');
+    return 300;
+}
+
+function getAQIAdvice(segment) {
+    switch(segment) {
+        case 1: return ["Air quality is ideal for outdoor activities.", "Enjoy the clear, fresh air."];
+        case 2: return ["Unusually sensitive people should consider reducing prolonged exertion.", "Good for most people."];
+        case 3: return ["Sensitive groups may experience health effects.", "Consider wearing a mask if you have asthma."];
+        case 4: return ["Everyone may begin to experience health effects.", "Avoid prolonged outdoor exertion."];
+        default: return ["Health alert: everyone may experience more serious health effects.", "Stay indoors and keep windows closed."];
     }
+}
+
+function getAIInsights(current, aqiSegment) {
+    const temp = Math.round(current.main.temp);
+    const feelsLike = Math.round(current.main.feels_like);
+    const id = current.weather[0].id;
+    let sentence = "";
+    let recommendations = [];
+
+    if (feelsLike > temp) {
+        sentence = `Today feels warmer than expected because humidity is trapping the heat.`;
+    } else if (feelsLike < temp) {
+        sentence = `The wind chill makes it feel noticeably cooler than the actual temperature.`;
+    } else {
+        sentence = `Conditions are steady with the temperature matching exactly how it feels outside.`;
+    }
+
+    if (id >= 200 && id < 600) {
+        sentence += ` Expect continuous rain and damp conditions.`;
+        recommendations.push("Carry a sturdy umbrella");
+        recommendations.push("Wear waterproof footwear");
+    } else if (id >= 600 && id < 700) {
+        sentence += ` Snow is falling, creating a freezing atmosphere.`;
+        recommendations.push("Bundle up in heavy thermal layers");
+        recommendations.push("Watch for slippery pavement");
+    } else if (id === 800) {
+        sentence += ` The skies are completely clear.`;
+        if(temp > 25) {
+            recommendations.push("Wear polarized sunglasses");
+            recommendations.push("Apply SPF 50+ sunscreen");
+            recommendations.push("Stay hydrated");
+        } else {
+            recommendations.push("Perfect conditions for a walk");
+        }
+    } else {
+        sentence += ` Expect overcast and cloudy skies for the time being.`;
+        recommendations.push("Keep a light jacket handy");
+    }
+
+    if (aqiSegment >= 3) {
+        recommendations.push("Wear an N95 mask due to poor air quality");
+    }
+
+    return { sentence, recommendations };
 }
 
 // ==========================================
@@ -336,9 +390,7 @@ function renderHero(current) {
     animateValue('temperature', 0, Math.round(current.main.temp), 1500);
     document.getElementById('weather-condition').textContent = current.weather[0].description;
     
-    const story = generateWeatherStory(Math.round(current.main.temp), current.weather[0].id, current.wind.speed);
-    document.getElementById('feels-like').textContent = story;
-    document.getElementById('weather-phrase').style.display = 'none';
+    document.getElementById('feels-like').textContent = `Feels like ${Math.round(current.main.feels_like)}°`;
     
     const iconCode = current.weather[0].icon;
     document.getElementById('hero-icon-wrapper').innerHTML = `
@@ -442,6 +494,20 @@ function renderDetails(current, aq) {
     arrow.style.transform = `rotate(${current.wind.deg}deg)`;
     window._metricsDesc.wind = getWindDesc(windSpeed);
     
+    // Wind Particles
+    const windParticlesContainer = document.getElementById('wind-particles');
+    windParticlesContainer.innerHTML = '';
+    const numParticles = Math.min(Math.floor(windSpeed / 5) + 2, 15);
+    for(let i=0; i<numParticles; i++) {
+        const p = document.createElement('div');
+        p.className = 'wind-particle';
+        p.style.top = `${Math.random() * 100}%`;
+        p.style.width = `${Math.random() * 40 + 20}px`;
+        p.style.animationDuration = `${(Math.random() * 2 + 1) * (20/Math.max(windSpeed, 1))}s`;
+        p.style.animationDelay = `${Math.random() * 2}s`;
+        windParticlesContainer.appendChild(p);
+    }
+    
     // Wind Trend
     const windTrendText = windSpeed > 20 ? "↗ Strong Winds" : "↘ Calm";
     document.getElementById('wind-trend').textContent = windTrendText;
@@ -449,15 +515,23 @@ function renderDetails(current, aq) {
     // Humidity
     const humidity = current.main.humidity;
     animateValue('humidity-val', 0, humidity, 1000);
-    const ring = document.getElementById('humidity-ring');
-    const circumference = 251.2;
-    const offset = circumference - (humidity / 100) * circumference;
-    setTimeout(() => { ring.style.strokeDashoffset = offset; }, 100);
+    const wave = document.getElementById('humidity-wave');
+    setTimeout(() => { wave.style.transform = `translateY(${100 - humidity}%)`; }, 100);
     window._metricsDesc.humidity = getHumDesc(humidity);
 
     // Pressure
     const pressureVal = current.main.pressure;
     animateValue('pressure-val', 0, pressureVal, 1500);
+    const gauge = document.getElementById('pressure-gauge');
+    const needle = document.getElementById('pressure-needle');
+    // Normalize pressure roughly between 950 and 1050
+    const pPercent = Math.max(0, Math.min(100, ((pressureVal - 950) / 100) * 100));
+    const pOffset = 125.6 - (pPercent / 100) * 125.6;
+    setTimeout(() => { 
+        gauge.style.strokeDashoffset = pOffset; 
+        const angle = -90 + (pPercent / 100) * 180;
+        needle.style.transform = `rotate(${angle}deg)`;
+    }, 100);
     window._metricsDesc.pressure = getPressDesc(pressureVal);
     
     // Pressure Trend
@@ -469,13 +543,12 @@ function renderDetails(current, aq) {
     // Visibility
     const visKm = Math.round(current.visibility / 1000);
     animateValue('visibility-val', 0, visKm, 1000);
-    window._metricsDesc.visibility = getVisDesc(visKm);
     
-    // Visibility Ring & Trend
-    const visRing = document.getElementById('vis-ring');
-    const visPercent = Math.min((visKm / 10) * 100, 100);
-    const visOffset = circumference - (visPercent / 100) * circumference;
-    setTimeout(() => { visRing.style.strokeDashoffset = visOffset; }, 100);
+    // Visibility Fog Overlay
+    const fogOverlay = document.getElementById('vis-fog-overlay');
+    const fogOpacity = 1 - Math.min(visKm / 10, 1);
+    setTimeout(() => { fogOverlay.style.opacity = fogOpacity; }, 100);
+    window._metricsDesc.visibility = getVisDesc(visKm);
     
     let visTrend = "Perfectly clear";
     if (visKm < 2) visTrend = "Dangerously low";
@@ -486,25 +559,46 @@ function renderDetails(current, aq) {
     const pm25 = aq.list[0].components.pm2_5 || 0;
     const usAqi = calcAQI(pm25);
     let aqiText = "";
-    if (usAqi <= 50) aqiText = "Good";
-    else if (usAqi <= 100) aqiText = "Satisfactory";
-    else if (usAqi <= 150) aqiText = "Moderate";
-    else if (usAqi <= 200) aqiText = "Poor";
-    else if (usAqi <= 300) aqiText = "Very Poor";
-    else aqiText = "Severe";
+    let activeSeg = 1;
+    let aqiColor = "";
+    if (usAqi <= 50) { aqiText = "Good"; activeSeg = 1; aqiColor = "#4caf50"; }
+    else if (usAqi <= 100) { aqiText = "Satisfactory"; activeSeg = 2; aqiColor = "#ffeb3b"; }
+    else if (usAqi <= 150) { aqiText = "Moderate"; activeSeg = 3; aqiColor = "#ff9800"; }
+    else if (usAqi <= 200) { aqiText = "Poor"; activeSeg = 4; aqiColor = "#f44336"; }
+    else if (usAqi <= 300) { aqiText = "Very Poor"; activeSeg = 5; aqiColor = "#9c27b0"; }
+    else { aqiText = "Severe"; activeSeg = 5; aqiColor = "#9c27b0"; }
 
     document.getElementById('aqi-val').textContent = usAqi;
+    document.getElementById('hero-aqi-badge').innerHTML = `<span style="color: ${aqiColor};">●</span> AQI: ${usAqi}`;
     document.getElementById('aqi-desc').textContent = aqiText;
+    document.getElementById('aqi-pollutant').textContent = `PM2.5: ${Math.round(pm25)} µg/m³`;
     
-    // Percentage for the bar (cap at 300 for UI purposes)
-    const aqiPercent = Math.min((usAqi / 300) * 100, 100);
-    setTimeout(() => { document.getElementById('aqi-progress').style.left = `calc(${aqiPercent}% - 14px)`; }, 100);
-    
-    document.getElementById('aqi-text-desc').textContent = `Air quality index is ${usAqi}, which is considered ${aqiText.toLowerCase()}.`;
-    window._metricsDesc.aqi = `Air quality index is ${usAqi}, which is considered ${aqiText.toLowerCase()}.`;
+    // Update Segments
+    for(let i=1; i<=5; i++) {
+        document.getElementById(`aqi-seg-${i}`).style.opacity = (i === activeSeg) ? '1' : '0.2';
+    }
 
-    // Poetic Weather Insight
-    document.getElementById('poetic-text').innerHTML = getNarrativeText(current);
+    // Health Advice list
+    const adviceList = document.getElementById('aqi-advice-list');
+    adviceList.innerHTML = '';
+    const advices = getAQIAdvice(activeSeg);
+    advices.forEach(adv => {
+        const li = document.createElement('li');
+        li.innerHTML = `• ${adv}`;
+        adviceList.appendChild(li);
+    });
+
+    // AI Weather Insight
+    const insightList = getAIInsights(current, activeSeg);
+    document.getElementById('poetic-text').innerHTML = insightList.sentence;
+    
+    const recList = document.getElementById('ai-recommendations');
+    recList.innerHTML = '';
+    insightList.recommendations.forEach(rec => {
+        const li = document.createElement('li');
+        li.innerHTML = `• ${rec}`;
+        recList.appendChild(li);
+    });
 
     // Sun Tracker (Simplified Arc)
     const now = Math.floor(Date.now() / 1000);
@@ -929,15 +1023,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const defaultPins = [
             { lat: 28.6139, lng: 77.2090, label: 'Delhi' },
             { lat: 19.0760, lng: 72.8777, label: 'Mumbai' },
+            { lat: 30.3165, lng: 78.0322, label: 'Dehradun' },
             { lat: 51.5074, lng: -0.1278, label: 'London' },
-            { lat: 40.7128, lng: -74.0060, label: 'New York' },
-            { lat: 35.6762, lng: 139.6503, label: 'Tokyo' }
+            { lat: 40.7128, lng: -74.0060, label: 'New York' }
         ];
 
         window.myGlobe.pointsData(defaultPins)
-            .pointAltitude(0)
+            .pointAltitude(0.05)
             .pointColor(() => '#FF8C7A')
-            .pointRadius(0.8);
+            .pointRadius(0.8)
+            .onPointHover(point => {
+                document.getElementById('globe-viz').style.cursor = point ? 'pointer' : 'grab';
+            })
+            .onPointClick(point => {
+                document.getElementById('city-input').value = point.label;
+                fetchWeatherData(point.label);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
 
         // Resize listener
         window.addEventListener('resize', () => {
