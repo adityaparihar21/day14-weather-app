@@ -1,3 +1,7 @@
+let currentUnit = 'metric';
+let lastSearchedCity = null;
+let lastSearchedCoords = null;
+
 // ==========================================
 // STATE & DOM ELEMENTS
 // ==========================================
@@ -5,7 +9,6 @@ const DOM = {
     input: document.getElementById('city-input'),
     btn: document.getElementById('search-btn'),
     main: document.getElementById('main-content'),
-    loading: document.getElementById('loading'),
     error: document.getElementById('error-message'),
     errorText: document.getElementById('error-text'),
     retryBtn: document.getElementById('retry-btn'),
@@ -24,6 +27,21 @@ document.addEventListener('DOMContentLoaded', () => {
     DOM.retryBtn.addEventListener('click', () => {
         DOM.error.classList.add('hidden');
         DOM.input.focus();
+    });
+
+    // Units toggle
+    document.querySelectorAll('.unit-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            if (e.target.classList.contains('active')) return;
+            document.querySelectorAll('.unit-btn').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+            currentUnit = e.target.getAttribute('data-unit');
+            if (lastSearchedCoords) {
+                fetchWeatherDataByCoords(lastSearchedCoords.lat, lastSearchedCoords.lon);
+            } else if (lastSearchedCity) {
+                fetchWeatherData(lastSearchedCity);
+            }
+        });
     });
 
     // Global Mouse Tracking for Light Reflection
@@ -52,11 +70,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Modal Logic
     const modal = document.getElementById('metrics-modal');
     const modalClose = document.getElementById('modal-close');
-    
+
     modalClose.addEventListener('click', closeModal);
-    
+
     modal.addEventListener('click', (e) => {
-        if(e.target === modal) closeModal();
+        if (e.target === modal) closeModal();
     });
 
     // ==========================================
@@ -65,13 +83,13 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('mousemove', (e) => {
         const x = e.clientX / window.innerWidth;
         const y = e.clientY / window.innerHeight;
-        
+
         // Global Parallax Rotation (-2deg to 2deg)
-        const rotateX = (y - 0.5) * -4; 
+        const rotateX = (y - 0.5) * -4;
         const rotateY = (x - 0.5) * 4;
-        
+
         const appWrapper = document.querySelector('.app-wrapper');
-        if(appWrapper) {
+        if (appWrapper) {
             requestAnimationFrame(() => {
                 appWrapper.style.transform = `perspective(2000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
             });
@@ -81,12 +99,12 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.metric-card').forEach(card => {
         card.addEventListener('click', () => {
             const type = card.getAttribute('data-type');
-            if(!type) return;
-            
+            if (!type) return;
+
             // Read data from DOM
             let title = "", icon = "", val = "", unit = "", desc = "";
-            
-            switch(type) {
+
+            switch (type) {
                 case 'wind':
                     title = "Wind"; icon = "fas fa-wind";
                     val = document.getElementById('wind-speed').textContent; unit = "km/h";
@@ -162,36 +180,36 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
                     break;
             }
-            
+
             document.getElementById('modal-title').textContent = title;
             document.getElementById('modal-icon').className = icon;
             document.getElementById('modal-value').textContent = val;
             document.getElementById('modal-unit').textContent = unit;
             document.getElementById('modal-desc').innerHTML = desc;
-            
+
             modal.classList.remove('hidden');
         });
     });
 });
 
-    const placeholders = ["Search city...", "Try 'Tokyo'...", "Try 'New York'...", "Try 'London'..."];
-    let placeholderIdx = 0;
-    setInterval(() => {
-        placeholderIdx = (placeholderIdx + 1) % placeholders.length;
-        DOM.input.setAttribute('placeholder', placeholders[placeholderIdx]);
-    }, 3000);
+const placeholders = ["Search city...", "Try 'Tokyo'...", "Try 'New York'...", "Try 'London'..."];
+let placeholderIdx = 0;
+setInterval(() => {
+    placeholderIdx = (placeholderIdx + 1) % placeholders.length;
+    DOM.input.setAttribute('placeholder', placeholders[placeholderIdx]);
+}, 3000);
 
-    // Cmd+K to focus search
-    document.addEventListener('keydown', (e) => {
-        if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-            e.preventDefault();
-            DOM.input.focus();
-        }
-    });
+// Cmd+K to focus search
+document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        DOM.input.focus();
+    }
+});
 
-    // ==========================================
-    // INITIALIZATION
-    // ==========================================
+// ==========================================
+// INITIALIZATION
+// ==========================================
 async function handleSearch() {
     const city = DOM.input.value.trim();
     if (!city) return;
@@ -200,18 +218,23 @@ async function handleSearch() {
 }
 
 async function fetchWeatherData(city) {
+    lastSearchedCity = city;
+    lastSearchedCoords = null;
     DOM.error.classList.add('hidden');
-    
+
     // Smooth exit
     DOM.main.classList.add('view-transition-exit');
 
     try {
+        DOM.main.classList.add('loading-state');
+        DOM.main.classList.remove('hidden');
+
         // Fetch and wait for CSS exit transition to finish concurrently
         const [response] = await Promise.all([
-            fetch(`/api/weather?city=${encodeURIComponent(city)}`),
+            fetch(`/api/weather?city=${encodeURIComponent(city)}&unit=${currentUnit}`),
             new Promise(r => setTimeout(r, 400))
         ]);
-        
+
         const data = await response.json();
 
         if (!response.ok) {
@@ -221,11 +244,10 @@ async function fetchWeatherData(city) {
         // Prepare enter state
         DOM.main.classList.remove('view-transition-exit');
         DOM.main.classList.add('view-transition-enter');
-        DOM.main.classList.remove('hidden'); // Ensure it's not display: none
-        DOM.loading.classList.add('hidden'); // Hide loader if it was there
-        
+        DOM.main.classList.remove('loading-state');
+
         renderWeather(data);
-        
+
         // Trigger reflow and transition in
         void DOM.main.offsetWidth;
         DOM.main.classList.remove('view-transition-enter');
@@ -234,24 +256,29 @@ async function fetchWeatherData(city) {
         console.error(err);
         DOM.main.classList.add('hidden');
         DOM.main.classList.remove('view-transition-exit');
-        DOM.loading.classList.add('hidden');
+        DOM.main.classList.remove('loading-state');
         DOM.errorText.textContent = err.message;
         DOM.error.classList.remove('hidden');
     }
 }
 
 async function fetchWeatherDataByCoords(lat, lon) {
+    lastSearchedCoords = { lat, lon };
+    lastSearchedCity = null;
     DOM.error.classList.add('hidden');
-    
+
     // Smooth exit
     DOM.main.classList.add('view-transition-exit');
 
     try {
+        DOM.main.classList.add('loading-state');
+        DOM.main.classList.remove('hidden');
+
         const [response] = await Promise.all([
-            fetch(`/api/weather?lat=${lat}&lon=${lon}`),
+            fetch(`/api/weather?lat=${lat}&lon=${lon}&unit=${currentUnit}`),
             new Promise(r => setTimeout(r, 400))
         ]);
-        
+
         const data = await response.json();
 
         if (!response.ok) {
@@ -260,15 +287,14 @@ async function fetchWeatherDataByCoords(lat, lon) {
 
         // Pin the location badge to the user's actual GPS location permanently
         renderLocationBadge(data.locationInfo, data.current);
-        
+
         // Prepare enter state
         DOM.main.classList.remove('view-transition-exit');
         DOM.main.classList.add('view-transition-enter');
-        DOM.main.classList.remove('hidden');
-        DOM.loading.classList.add('hidden');
-        
+        DOM.main.classList.remove('loading-state');
+
         renderWeather(data);
-        
+
         // Trigger reflow and transition in
         void DOM.main.offsetWidth;
         DOM.main.classList.remove('view-transition-enter');
@@ -277,14 +303,14 @@ async function fetchWeatherDataByCoords(lat, lon) {
         console.error(err);
         DOM.main.classList.add('hidden');
         DOM.main.classList.remove('view-transition-exit');
-        DOM.loading.classList.add('hidden');
+        DOM.main.classList.remove('loading-state');
         DOM.errorText.textContent = err.message;
         DOM.error.classList.remove('hidden');
     }
 }
 
 function getAQIAdvice(segment) {
-    switch(segment) {
+    switch (segment) {
         case 1: return ["Air quality is ideal for outdoor activities.", "Enjoy the clear, fresh air."];
         case 2: return ["Unusually sensitive people should consider reducing prolonged exertion.", "Good for most people."];
         case 3: return ["Sensitive groups may experience health effects.", "Consider wearing a mask if you have asthma."];
@@ -318,7 +344,7 @@ function getAIInsights(current, aqiSegment) {
         recommendations.push("Watch for slippery pavement");
     } else if (id === 800) {
         sentence += ` The skies are completely clear.`;
-        if(temp > 25) {
+        if (temp > 25) {
             recommendations.push("Wear polarized sunglasses");
             recommendations.push("Apply SPF 50+ sunscreen");
             recommendations.push("Stay hydrated");
@@ -343,7 +369,7 @@ function getAIInsights(current, aqiSegment) {
 function renderWeather(data) {
     const { current, forecast, airQuality } = data;
     updateTheme(current);
-    
+
     // Location badge is explicitly not updated here to keep the user's GPS location pinned
     renderHero(current);
     renderHourly(forecast);
@@ -357,35 +383,35 @@ function renderLocationBadge(locationInfo, current) {
         badge.classList.add('hidden');
         return;
     }
-    
+
     document.getElementById('loc-city').textContent = locationInfo.name || current.name;
-    
+
     let countryName = locationInfo.country;
     try {
         countryName = new Intl.DisplayNames(['en'], { type: 'region' }).of(locationInfo.country) || locationInfo.country;
-    } catch(e) {}
-    
+    } catch (e) { }
+
     if (locationInfo.state) {
         document.getElementById('loc-state').textContent = `${locationInfo.state}, ${countryName}`;
     } else {
         document.getElementById('loc-state').textContent = countryName;
     }
-    
+
     badge.classList.remove('hidden');
 }
 
 function renderHero(current) {
     document.getElementById('city-name').textContent = `${current.name}, ${current.sys.country}`;
-    
+
     const now = new Date(current.dt * 1000);
     const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
     document.getElementById('date-time').textContent = dateStr;
-    
+
     animateValue('temperature', 0, Math.round(current.main.temp), 1500);
     document.getElementById('weather-condition').textContent = current.weather[0].description;
-    
+
     document.getElementById('feels-like').textContent = `Feels like ${Math.round(current.main.feels_like)}°`;
-    
+
     const iconCode = current.weather[0].icon;
     document.getElementById('hero-icon-wrapper').innerHTML = `
         <div class="hero-emoji">${getWeatherEmoji(current.weather[0].id, iconCode.includes('n'))}</div>
@@ -410,7 +436,7 @@ function generateWeatherStory(temp, conditionId, windSpeed) {
     else if (conditionId === 800) condStory = "Perfectly clear skies stretching endlessly.";
     else if (conditionId === 801 || conditionId === 802) condStory = "A few clouds lazily drifting by.";
     else condStory = "A heavy blanket of clouds overhead.";
-    
+
     let windStory = "";
     if (windSpeed > 20) windStory = " with strong, disruptive gusts.";
     else if (windSpeed > 10) windStory = " with a noticeable breeze.";
@@ -422,10 +448,10 @@ function generateWeatherStory(temp, conditionId, windSpeed) {
 function renderHourly(forecast) {
     const container = document.getElementById('hourly-container');
     container.innerHTML = '';
-    
+
     // Take next 8 items (24 hours)
     const next24 = forecast.list.slice(0, 8);
-    
+
     next24.forEach(item => {
         const time = new Date(item.dt * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         const temp = Math.round(item.main.temp);
@@ -462,7 +488,7 @@ function renderDaily(forecast) {
         const day = days[key];
         const dayName = new Date(day.dt * 1000).toLocaleDateString('en-US', { weekday: 'short' });
         const emoji = getWeatherEmoji(day.id, false); // Days generally use daytime emoji
-        
+
         const el = document.createElement('div');
         el.className = 'day-item';
         el.innerHTML = `
@@ -482,26 +508,35 @@ function renderDetails(current, aq) {
     window._currentMetrics = { current, aq };
 
     // Wind
-    const windSpeed = Math.round((current.wind.speed * 3600) / 1000); // m/s to km/h
+    let windSpeed = Math.round(current.wind.speed); // mph for imperial
+    if (currentUnit === 'metric') {
+        windSpeed = Math.round((current.wind.speed * 3600) / 1000); // m/s to km/h
+    }
+    const windUnit = currentUnit === 'metric' ? 'km/h' : 'mph';
+    
+    // update DOM element text for wind unit
+    const windLabel = document.querySelector('#wind-speed').nextElementSibling;
+    if (windLabel) windLabel.textContent = windUnit;
+
     animateValue('wind-speed', 0, windSpeed, 1000);
     const arrow = document.querySelector('#wind-compass .arrow');
     arrow.style.transform = `rotate(${current.wind.deg}deg)`;
     window._metricsDesc.wind = getWindDesc(windSpeed);
-    
+
     // Wind Particles
     const windParticlesContainer = document.getElementById('wind-particles');
     windParticlesContainer.innerHTML = '';
     const numParticles = Math.min(Math.floor(windSpeed / 5) + 2, 15);
-    for(let i=0; i<numParticles; i++) {
+    for (let i = 0; i < numParticles; i++) {
         const p = document.createElement('div');
         p.className = 'wind-particle';
         p.style.top = `${Math.random() * 100}%`;
         p.style.width = `${Math.random() * 40 + 20}px`;
-        p.style.animationDuration = `${(Math.random() * 2 + 1) * (20/Math.max(windSpeed, 1))}s`;
+        p.style.animationDuration = `${(Math.random() * 2 + 1) * (20 / Math.max(windSpeed, 1))}s`;
         p.style.animationDelay = `${Math.random() * 2}s`;
         windParticlesContainer.appendChild(p);
     }
-    
+
     // Wind Trend
     const windTrendText = windSpeed > 20 ? "↗ Strong Winds" : "↘ Calm";
     document.getElementById('wind-trend').textContent = windTrendText;
@@ -521,29 +556,29 @@ function renderDetails(current, aq) {
     // Normalize pressure roughly between 950 and 1050
     const pPercent = Math.max(0, Math.min(100, ((pressureVal - 950) / 100) * 100));
     const pOffset = 125.6 - (pPercent / 100) * 125.6;
-    setTimeout(() => { 
-        gauge.style.strokeDashoffset = pOffset; 
+    setTimeout(() => {
+        gauge.style.strokeDashoffset = pOffset;
         const angle = -90 + (pPercent / 100) * 180;
         needle.style.transform = `rotate(${angle}deg)`;
     }, 100);
     window._metricsDesc.pressure = getPressDesc(pressureVal);
-    
+
     // Pressure Trend
     let pressTrend = "Normal";
     if (pressureVal > 1013) pressTrend = "↗ High Pressure";
     else if (pressureVal < 1013) pressTrend = "↘ Low Pressure";
     document.getElementById('pressure-trend').textContent = pressTrend;
-    
+
     // Visibility
     const visKm = Math.round(current.visibility / 1000);
     animateValue('visibility-val', 0, visKm, 1000);
-    
+
     // Visibility Fog Overlay
     const fogOverlay = document.getElementById('vis-fog-overlay');
     const fogOpacity = 1 - Math.min(visKm / 10, 1);
     setTimeout(() => { fogOverlay.style.opacity = fogOpacity; }, 100);
     window._metricsDesc.visibility = getVisDesc(visKm);
-    
+
     let visTrend = "Perfectly clear";
     if (visKm < 2) visTrend = "Dangerously low";
     else if (visKm < 5) visTrend = "Slightly hazy";
@@ -566,9 +601,9 @@ function renderDetails(current, aq) {
     document.getElementById('hero-aqi-badge').innerHTML = `<span style="color: ${aqiColor};">●</span> AQI: ${usAqi}`;
     document.getElementById('aqi-desc').textContent = aqiText;
     document.getElementById('aqi-pollutant').textContent = `PM2.5: ${Math.round(pm25)} µg/m³`;
-    
+
     // Update Segments
-    for(let i=1; i<=5; i++) {
+    for (let i = 1; i <= 5; i++) {
         document.getElementById(`aqi-seg-${i}`).style.opacity = (i === activeSeg) ? '1' : '0.2';
     }
 
@@ -589,7 +624,7 @@ function renderDetails(current, aq) {
     const now = Math.floor(Date.now() / 1000);
     const sr = current.sys.sunrise;
     const ss = current.sys.sunset;
-    
+
     document.getElementById('sunrise-time').textContent = new Date(sr * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     document.getElementById('sunset-time').textContent = new Date(ss * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
@@ -602,12 +637,12 @@ function renderDetails(current, aq) {
 
     const sunArc = document.getElementById('sun-arc-progress');
     const sunDot = document.getElementById('sun-dot');
-    
+
     // Math for SVG Arc (Radius 80, Center 100, 90)
     const totalLength = 251.3; // Approx length of semi-circle r=80
-    setTimeout(() => { 
-        sunArc.style.strokeDashoffset = totalLength - (sunPercent * totalLength); 
-        
+    setTimeout(() => {
+        sunArc.style.strokeDashoffset = totalLength - (sunPercent * totalLength);
+
         // Calculate dot position based on angle (180 deg to 0 deg)
         // Pi radians to 0 radians
         const angle = Math.PI - (sunPercent * Math.PI);
@@ -740,11 +775,11 @@ function updateTheme(current) {
     const now = current.dt;
     const sunrise = current.sys.sunrise;
     const sunset = current.sys.sunset;
-    
+
     // Time of Day Logic
     let timeOfDay = 'afternoon';
     const hourMs = 3600;
-    
+
     if (now < sunrise - hourMs || now > sunset + hourMs) {
         timeOfDay = 'night';
     } else if (now >= sunrise - hourMs && now <= sunrise + hourMs * 2) {
@@ -763,26 +798,26 @@ function updateTheme(current) {
     let ambientGlow = 'transparent';
     let logoGradient = 'linear-gradient(90deg, #FFFFFF, #EAF2FF, #C7DFFF)';
     if (timeOfDay === 'morning') {
-        bgBase = '#5582a8'; bgDeep = '#2c4a6b'; surface1 = 'rgba(255,255,255,0.1)'; 
+        bgBase = '#5582a8'; bgDeep = '#2c4a6b'; surface1 = 'rgba(255,255,255,0.1)';
         textMain = '#F0F4F8'; glassHighlight = 'rgba(255,255,255,0.2)';
-        t1 = '#FFB26B'; t2 = '#FFD56F'; t3 = '#FAEDCD'; 
+        t1 = '#FFB26B'; t2 = '#FFD56F'; t3 = '#FAEDCD';
         cloudOpacity = 0.4; fogOpacity = 0.1;
     } else if (timeOfDay === 'sunset') {
-        bgBase = '#ab5b49'; bgDeep = '#4a2520'; surface1 = 'rgba(255,255,255,0.1)'; 
+        bgBase = '#ab5b49'; bgDeep = '#4a2520'; surface1 = 'rgba(255,255,255,0.1)';
         textMain = '#FFF4EB'; glassHighlight = 'rgba(255,255,255,0.2)';
-        t1 = '#FF7B54'; t2 = '#FFB26B'; t3 = '#FFD56F'; 
+        t1 = '#FF7B54'; t2 = '#FFB26B'; t3 = '#FFD56F';
         cloudOpacity = 0.6; fogOpacity = 0;
     } else if (timeOfDay === 'night') {
-        bgBase = '#13284A'; bgDeep = '#071126'; surface1 = 'rgba(26, 28, 41, 0.4)'; 
+        bgBase = '#13284A'; bgDeep = '#071126'; surface1 = 'rgba(26, 28, 41, 0.4)';
         textMain = '#E0E2EB'; glassHighlight = 'rgba(255, 255, 255, 0.05)';
-        t1 = '#4A6984'; t2 = '#7A9E9F'; t3 = '#B8D8D8'; 
+        t1 = '#4A6984'; t2 = '#7A9E9F'; t3 = '#B8D8D8';
         cloudOpacity = 0.1; fogOpacity = 0.2;
         ambientGlow = 'rgba(130, 170, 255, 0.12)';
     } else {
         // Afternoon
-        bgBase = '#74add4'; bgDeep = '#437ba3'; surface1 = 'rgba(255,255,255,0.1)'; 
+        bgBase = '#74add4'; bgDeep = '#437ba3'; surface1 = 'rgba(255,255,255,0.1)';
         textMain = '#ffffff'; glassHighlight = 'rgba(255, 255, 255, 0.22)';
-        t1 = '#FFD56F'; t2 = '#FAEDCD'; t3 = '#ffffff'; 
+        t1 = '#FFD56F'; t2 = '#FAEDCD'; t3 = '#ffffff';
         cloudOpacity = 0.3; fogOpacity = 0;
         // Subtle 3-stop gradient for blue sky
         logoGradient = 'linear-gradient(90deg, #FFFFFF, #EAF2FF, #C7DFFF)';
@@ -792,13 +827,13 @@ function updateTheme(current) {
     document.body.className = ''; // reset classes
     if (id >= 200 && id < 600) { // Rain/Thunderstorm
         bgBase = '#1B2631'; bgDeep = '#0c1218'; surface1 = 'rgba(0,0,0,0.3)';
-        t1 = '#4A6984'; t2 = '#7A9E9F'; t3 = '#B8D8D8'; 
+        t1 = '#4A6984'; t2 = '#7A9E9F'; t3 = '#B8D8D8';
         textMain = '#FFFFFF';
         cloudOpacity = 0.8; fogOpacity = 0.4;
         document.body.classList.add(id >= 200 && id < 300 ? 'theme-storm' : 'theme-rain');
     } else if (id >= 600 && id < 700) { // Snow
         bgBase = '#556d82'; bgDeep = '#34495E'; surface1 = 'rgba(255,255,255,0.2)';
-        t1 = '#8CA8C6'; t2 = '#C2D3E4'; t3 = '#E6EEF5'; 
+        t1 = '#8CA8C6'; t2 = '#C2D3E4'; t3 = '#E6EEF5';
         textMain = '#F0F4F8';
         cloudOpacity = 0.9; fogOpacity = 0.5;
         document.body.classList.add('theme-snow');
@@ -822,14 +857,14 @@ function updateTheme(current) {
     root.style.setProperty('--theme-shadow', t1 + '40');
     root.style.setProperty('--ambient-glow', ambientGlow);
     root.style.setProperty('--logo-gradient', logoGradient);
-    
+
 
     // Celestial Tracker Logic
     const celestial = document.getElementById('celestial-body');
     if (celestial) {
         let percentage = 0;
         let isSun = true;
-        
+
         if (now >= sunrise && now <= sunset) {
             // Day time arc
             percentage = (now - sunrise) / (sunset - sunrise);
@@ -850,19 +885,19 @@ function updateTheme(current) {
             celestial.style.boxShadow = '0 0 80px #E6EEF5';
             celestial.style.opacity = '0.4';
         }
-        
+
         // Clamp percentage 0-1
         percentage = Math.max(0, Math.min(1, percentage));
-        
+
         // Arc math (Parabola)
         const xPos = (percentage * 120) - 10; // -10% to 110%
-        const yPos = 100 - (Math.sin(percentage * Math.PI) * 120); 
-        
+        const yPos = 100 - (Math.sin(percentage * Math.PI) * 120);
+
         celestial.style.left = `${xPos}%`;
         celestial.style.top = `${yPos}%`;
         celestial.style.transform = `translate(-50%, -50%)`;
     }
-    
+
     // Render Atmospheric Particles
     renderParticles(id, timeOfDay);
 }
@@ -892,13 +927,13 @@ function animateValue(id, start, end, duration) {
 function renderParticles(id, timeOfDay) {
     const container = document.getElementById('particle-container');
     if (!container) return;
-    
+
     // Clear previous particles
     container.innerHTML = '';
-    
+
     // Night: Stars
     if (timeOfDay === 'night' && id >= 800) {
-        for(let i=0; i<60; i++) {
+        for (let i = 0; i < 60; i++) {
             const star = document.createElement('div');
             star.className = 'star-particle';
             star.style.left = `${Math.random() * 100}vw`;
@@ -916,8 +951,8 @@ function renderParticles(id, timeOfDay) {
         const flare = document.createElement('div');
         flare.className = 'lens-flare';
         container.appendChild(flare);
-        
-        for(let i=0; i<30; i++) {
+
+        for (let i = 0; i < 30; i++) {
             const p = document.createElement('div');
             p.className = 'dust-particle';
             p.style.left = `${Math.random() * 100}vw`;
@@ -928,9 +963,9 @@ function renderParticles(id, timeOfDay) {
         }
     }
     // Rain/Thunderstorm/Drizzle
-    else if (id >= 200 && id < 600 && id !== 211 && id !== 212 && id !== 221) { 
+    else if (id >= 200 && id < 600 && id !== 211 && id !== 212 && id !== 221) {
         // Slanted drops
-        for(let i=0; i<120; i++) {
+        for (let i = 0; i < 120; i++) {
             const drop = document.createElement('div');
             drop.className = 'rain-drop';
             drop.style.left = `${Math.random() * 120 - 10}vw`; // wider to account for slant
@@ -939,7 +974,7 @@ function renderParticles(id, timeOfDay) {
             container.appendChild(drop);
         }
         // Small ripples to simulate hitting glass
-        for(let i=0; i<25; i++) {
+        for (let i = 0; i < 25; i++) {
             const ripple = document.createElement('div');
             ripple.className = 'rain-ripple';
             ripple.style.left = `${Math.random() * 100}vw`;
@@ -950,7 +985,7 @@ function renderParticles(id, timeOfDay) {
             ripple.style.animationDelay = `${Math.random() * 2}s`;
             container.appendChild(ripple);
         }
-        if(id >= 200 && id < 300) { // Thunderstorm
+        if (id >= 200 && id < 300) { // Thunderstorm
             const flash = document.createElement('div');
             flash.className = 'lightning-flash';
             container.appendChild(flash);
@@ -958,7 +993,7 @@ function renderParticles(id, timeOfDay) {
     }
     // Snow
     else if (id >= 600 && id < 700) {
-        for(let i=0; i<100; i++) {
+        for (let i = 0; i < 100; i++) {
             const flake = document.createElement('div');
             flake.className = 'snow-flake';
             flake.style.left = `${Math.random() * 100}vw`;
@@ -972,7 +1007,7 @@ function renderParticles(id, timeOfDay) {
     }
     // Fog / Mist
     else if (id >= 700 && id < 800) {
-        for(let i=0; i<8; i++) {
+        for (let i = 0; i < 8; i++) {
             const haze = document.createElement('div');
             haze.className = 'fog-haze';
             haze.style.animationDuration = `${15 + Math.random() * 15}s`;
@@ -1017,7 +1052,7 @@ document.addEventListener('DOMContentLoaded', () => {
             panel.style.setProperty('--mouse-x', `${x}px`);
             panel.style.setProperty('--mouse-y', `${y}px`);
         });
-        
+
         // Re-trigger number counting on hover
         panel.addEventListener('mouseenter', () => {
             const valEl = panel.querySelector('.val-huge');

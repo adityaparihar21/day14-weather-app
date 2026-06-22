@@ -43,6 +43,10 @@
                         <span class="btn-text">Search</span>
                     </button>
                 </div>
+                <div class="units-toggle" id="units-toggle">
+                    <button class="unit-btn active" data-unit="metric">°C</button>
+                    <button class="unit-btn" data-unit="imperial">°F</button>
+                </div>
                 <div class="location-badge hidden" id="location-badge">
                     <i class="fas fa-map-marker-alt loc-icon"></i>
                     <div class="loc-text">
@@ -54,7 +58,7 @@
         </header>
 
         <!-- Main Content -->
-        <main id="main-content" class="hidden">
+        <main id="main-content" class="loading-state">
             <!-- 3D Tilt Hero Card -->
             <section class="hero-card" id="hero-card">
                 <div class="celestial-tracker" id="celestial-tracker">
@@ -263,15 +267,6 @@
 
 
         </main>
-
-        <!-- Premium Loading State -->
-        <div id="loading" class="state-container hidden">
-            <div class="premium-loader">
-                <div class="loader-orbit"></div>
-                <div class="loader-core"></div>
-            </div>
-            <p class="loading-text">Loading Weather...</p>
-        </div>
 
         <!-- Premium Error State -->
         <div id="error-message" class="state-container hidden error-state glass-panel">
