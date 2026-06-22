@@ -92,19 +92,9 @@
                 </div>
             </section>
 
-            <!-- Details Grid -->
-            <section class="details-grid">
-                <!-- 5-Day Forecast -->
-                <div class="detail-card forecast-card glass-panel">
-                    <div class="card-header">
-                        <h4><i class="far fa-calendar-alt"></i> 5-Day Forecast</h4>
-                    </div>
-                    <div class="forecast-list" id="forecast-list">
-                        <!-- List injected via JS -->
-                    </div>
-                </div>
-
-                <div class="right-grid">
+            <!-- Today's Metrics -->
+            <section class="story-section metrics-section scroll-reveal">
+                <div class="metrics-grid">
                     <!-- Wind Compass -->
                     <div class="detail-card square-card glass-panel metric-card" data-type="wind">
                         <div class="card-header">
@@ -140,21 +130,6 @@
                         </div>
                     </div>
 
-                    <!-- Air Quality -->
-                    <div class="detail-card square-card glass-panel metric-card" data-type="aqi">
-                        <div class="card-header">
-                            <h4><i class="fas fa-leaf"></i> Air Quality</h4>
-                        </div>
-                        <div class="aqi-viz">
-                            <p id="aqi-val" class="val-huge">--</p>
-                            <p id="aqi-desc" class="aqi-desc">--</p>
-                            <div class="aqi-bar">
-                                <div class="aqi-progress" id="aqi-progress"></div>
-                            </div>
-                            <p id="aqi-text-desc" class="aqi-text-desc">--</p>
-                        </div>
-                    </div>
-
                     <!-- Pressure -->
                     <div class="detail-card square-card glass-panel metric-card" data-type="pressure" style="display: flex; flex-direction: column; justify-content: space-between;">
                         <div class="card-header">
@@ -171,32 +146,6 @@
                             </svg>
                         </div>
                         <p class="trend-text" id="pressure-trend" style="text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">↗ Rising</p>
-                    </div>
-
-                    <!-- Sun Tracker -->
-                    <div class="detail-card wide-card glass-panel metric-card" data-type="sun">
-                        <div class="card-header">
-                            <h4><i class="fas fa-sun"></i> Sun Tracker</h4>
-                        </div>
-                        <div class="sun-viz">
-                            <div class="sun-arc-container">
-                                <svg viewBox="0 0 200 100" class="sun-arc">
-                                    <path class="arc-bg" d="M 20 90 A 80 80 0 0 1 180 90"></path>
-                                    <path class="arc-progress" id="sun-arc-progress" d="M 20 90 A 80 80 0 0 1 180 90"></path>
-                                    <circle class="sun-dot" id="sun-dot" cx="20" cy="90" r="6"></circle>
-                                </svg>
-                            </div>
-                            <div class="sun-times">
-                                <div>
-                                    <p class="small-label">Sunrise</p>
-                                    <p id="sunrise-time">--:--</p>
-                                </div>
-                                <div style="text-align: right;">
-                                    <p class="small-label">Sunset</p>
-                                    <p id="sunset-time">--:--</p>
-                                </div>
-                            </div>
-                        </div>
                     </div>
 
                     <!-- Visibility -->
@@ -216,15 +165,77 @@
                         </div>
                         <p class="trend-text" id="vis-trend" style="text-align: center; font-size: 0.85rem; color: var(--text-muted);">Perfectly clear</p>
                     </div>
+                </div>
+            </section>
 
-                    <!-- Poetic Weather Insight -->
-                    <div class="detail-card wide-card glass-panel" data-type="poetry">
-                        <div class="card-header">
-                            <h4><i class="fas fa-feather-alt"></i> Feels Like</h4>
+            <!-- Weekly Forecast -->
+            <section class="story-section forecast-section scroll-reveal">
+                <!-- 5-Day Forecast -->
+                <div class="detail-card forecast-card glass-panel" style="width: 100%; max-width: 600px; margin: 0 auto;">
+                    <div class="card-header">
+                        <h4><i class="far fa-calendar-alt"></i> 5-Day Forecast</h4>
+                    </div>
+                    <div class="forecast-list" id="forecast-list">
+                        <!-- List injected via JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Astronomy -->
+            <section class="story-section astronomy-section scroll-reveal">
+                <!-- Sun Tracker -->
+                <div class="detail-card wide-card glass-panel metric-card" data-type="sun" style="width: 100%; max-width: 800px; margin: 0 auto;">
+                    <div class="card-header">
+                        <h4><i class="fas fa-sun"></i> Sun Tracker</h4>
+                    </div>
+                    <div class="sun-viz" style="padding: 2rem 0;">
+                        <div class="sun-arc-container" style="max-width: 500px; margin: 0 auto;">
+                            <svg viewBox="0 0 200 100" class="sun-arc">
+                                <path class="arc-bg" d="M 20 90 A 80 80 0 0 1 180 90"></path>
+                                <path class="arc-progress" id="sun-arc-progress" d="M 20 90 A 80 80 0 0 1 180 90"></path>
+                                <circle class="sun-dot" id="sun-dot" cx="20" cy="90" r="6"></circle>
+                            </svg>
                         </div>
-                        <div class="viz-center" style="text-align: center; padding: 0 1rem;">
-                            <p id="poetic-text" style="font-size: 1.3rem; font-style: italic; font-weight: 300; line-height: 1.5; color: var(--text-main);">--</p>
+                        <div class="sun-times" style="max-width: 500px; margin: 0 auto;">
+                            <div>
+                                <p class="small-label">Sunrise</p>
+                                <p id="sunrise-time" style="font-size: 1.5rem;">--:--</p>
+                            </div>
+                            <div style="text-align: right;">
+                                <p class="small-label">Sunset</p>
+                                <p id="sunset-time" style="font-size: 1.5rem;">--:--</p>
+                            </div>
                         </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Air Quality -->
+            <section class="story-section aqi-section scroll-reveal">
+                <!-- Air Quality -->
+                <div class="detail-card wide-card glass-panel metric-card" data-type="aqi" style="width: 100%; max-width: 800px; margin: 0 auto;">
+                    <div class="card-header">
+                        <h4><i class="fas fa-leaf"></i> Air Quality</h4>
+                    </div>
+                    <div class="aqi-viz" style="padding: 2rem 0;">
+                        <p id="aqi-val" class="val-huge" style="font-size: 4rem;">--</p>
+                        <p id="aqi-desc" class="aqi-desc" style="font-size: 1.5rem;">--</p>
+                        <div class="aqi-bar" style="height: 12px; max-width: 500px; margin: 1.5rem auto;">
+                            <div class="aqi-progress" id="aqi-progress"></div>
+                        </div>
+                        <p id="aqi-text-desc" class="aqi-text-desc" style="font-size: 1.2rem;">--</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Footer / Poetic Weather Insight -->
+            <section class="story-section footer-section scroll-reveal">
+                <div class="detail-card wide-card glass-panel" data-type="poetry" style="width: 100%; max-width: 800px; margin: 0 auto;">
+                    <div class="card-header" style="justify-content: center;">
+                        <h4><i class="fas fa-feather-alt"></i> Narrative</h4>
+                    </div>
+                    <div class="viz-center" style="text-align: center; padding: 2rem;">
+                        <p id="poetic-text" style="font-size: 1.6rem; font-style: italic; font-weight: 300; line-height: 1.5; color: var(--text-main);">--</p>
                     </div>
                 </div>
             </section>

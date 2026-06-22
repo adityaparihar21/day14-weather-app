@@ -498,7 +498,7 @@ function renderDetails(current, aq) {
     window._metricsDesc.aqi = `Air quality index is ${usAqi}, which is considered ${aqiText.toLowerCase()}.`;
 
     // Poetic Weather Insight
-    document.getElementById('poetic-text').innerHTML = getPoeticWeather(current.weather[0].id);
+    document.getElementById('poetic-text').innerHTML = getNarrativeText(current);
 
     // Sun Tracker (Simplified Arc)
     const now = Math.floor(Date.now() / 1000);
@@ -610,15 +610,27 @@ function calcAQI(pm25) {
     return pm25 > 500.4 ? 500 : 0;
 }
 
-function getPoeticWeather(id) {
-    if (id >= 200 && id < 300) return `"The sky grew darker, painted with stroke after stroke of black and purple."`;
-    if (id >= 300 && id < 500) return `"A light drizzle kisses the earth, whispering secrets to the leaves."`;
-    if (id >= 500 && id < 600) return `"The rain began to fall, like a gentle melody from the heavens."`;
-    if (id >= 600 && id < 700) return `"Snowflakes danced in the cold air, turning the world into a quiet, white dream."`;
-    if (id >= 700 && id < 800) return `"A misty veil draped over the landscape, hiding the world in soft grey mystery."`;
-    if (id === 800) return `"The sun poured its golden honey over the awakened earth."`;
-    if (id === 801) return `"A few clouds wandered lazily across the vast blue canvas."`;
-    return `"The sky was a thick blanket of grey, waiting patiently for the sun's return."`;
+function getNarrativeText(current) {
+    const id = current.weather[0].id;
+    const now = Math.floor(Date.now() / 1000);
+    const isNight = now < current.sys.sunrise || now > current.sys.sunset;
+    const windSpeed = Math.round((current.wind.speed * 3600) / 1000); // km/h
+
+    if (id >= 200 && id < 300) return `"Thunderstorms approach. Stay indoors and keep warm."`;
+    if (id >= 300 && id < 500) return `"A light drizzle outside. Perfect weather for a cozy coffee."`;
+    if (id >= 500 && id < 600) return `"Carry an umbrella this ${isNight ? 'evening' : 'afternoon'}, heavy rain is falling."`;
+    if (id >= 600 && id < 700) return `"Snow is falling. Drive carefully and bundle up!"`;
+    if (id >= 700 && id < 800) return `"Visibility is low due to mist. Take it slow on the roads."`;
+    
+    if (id === 800) {
+        if (isNight) return `"Clear skies make tonight ideal for stargazing."`;
+        if (windSpeed > 15) return `"A bright, breezy day. Great for outdoor activities."`;
+        return `"Perfect, clear weather for a walk outside."`;
+    }
+    
+    if (id === 801 || id === 802) return `"Partly cloudy skies. A beautiful, balanced day."`;
+    
+    return `"Overcast skies. A quiet, contemplative atmosphere."`;
 }
 
 // ==========================================
@@ -844,3 +856,28 @@ function renderParticles(id, timeOfDay) {
         }
     }
 }
+
+// Add Intersection Observer for scroll animations
+document.addEventListener('DOMContentLoaded', () => {
+    const observerOptions = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.15
+    };
+
+    const scrollObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+
+    // Give a slight delay so initial render layout shift doesn't instantly trigger them
+    setTimeout(() => {
+        document.querySelectorAll('.scroll-reveal').forEach(el => {
+            scrollObserver.observe(el);
+        });
+    }, 500);
+});
