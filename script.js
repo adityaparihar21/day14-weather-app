@@ -342,14 +342,8 @@ function getAIInsights(current, aqiSegment) {
 // ==========================================
 function renderWeather(data) {
     const { current, forecast, airQuality } = data;
-    
-    // Update WebGL Globe Camera
-    if (window.myGlobe && current.coord) {
-        window.myGlobe.pointOfView({ lat: current.coord.lat, lng: current.coord.lon, altitude: 1.5 }, 2000);
-        window.myGlobe.pointsData([{ lat: current.coord.lat, lng: current.coord.lon, label: current.name }]);
-    }
-
     updateTheme(current);
+    
     // Location badge is explicitly not updated here to keep the user's GPS location pinned
     renderHero(current);
     renderHourly(forecast);
@@ -810,11 +804,7 @@ function updateTheme(current) {
     root.style.setProperty('--theme-3', t3);
     root.style.setProperty('--theme-shadow', t1 + '40');
     
-    // Update Matte Globe Color
-    if (window.myGlobe) {
-        window.myGlobe.globeMaterial().color.set(bgDeep);
-    }
-    
+
     // Celestial Tracker Logic
     const celestial = document.getElementById('celestial-body');
     if (celestial) {
@@ -996,36 +986,5 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }, 500);
 
-    // Interactive WebGL Globe Initialization (Background Matte)
-    const globeContainer = document.getElementById('globe-viz');
-    if (globeContainer && window.Globe) {
-        window.myGlobe = Globe()
-            (globeContainer)
-            .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
-            .backgroundColor('rgba(0,0,0,0)') 
-            .showAtmosphere(true)
-            .atmosphereColor('lightskyblue')
-            .atmosphereAltitude(0.25)
-            .width(window.innerWidth * 1.5)
-            .height(window.innerHeight * 1.5);
 
-        // Apply Matte Finish
-        const mat = window.myGlobe.globeMaterial();
-        mat.color.set('#13284A'); // Initial color
-        mat.roughness = 1;
-        mat.metalness = 0;
-
-        // Ambient rotation
-        window.myGlobe.controls().autoRotate = true;
-        window.myGlobe.controls().autoRotateSpeed = 0.2;
-        window.myGlobe.controls().enableZoom = false; 
-        window.myGlobe.controls().enablePan = false;
-        window.myGlobe.controls().enableRotate = false;
-
-        // Resize listener
-        window.addEventListener('resize', () => {
-            window.myGlobe.width(window.innerWidth * 1.5);
-            window.myGlobe.height(window.innerHeight * 1.5);
-        });
-    }
 });
