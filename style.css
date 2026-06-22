@@ -1152,6 +1152,10 @@ body {
     border-color: rgba(255, 140, 122, 0.3);
 }
 
+.error-state:hover {
+    transform: translate(-50%, calc(-50% - 2px)) !important;
+}
+
 .error-icon {
     font-size: 4rem;
     color: #FF8C7A;
