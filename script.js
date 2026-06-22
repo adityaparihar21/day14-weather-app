@@ -616,21 +616,21 @@ function getNarrativeText(current) {
     const isNight = now < current.sys.sunrise || now > current.sys.sunset;
     const windSpeed = Math.round((current.wind.speed * 3600) / 1000); // km/h
 
-    if (id >= 200 && id < 300) return `"Thunderstorms approach. Stay indoors and keep warm."`;
-    if (id >= 300 && id < 500) return `"A light drizzle outside. Perfect weather for a cozy coffee."`;
-    if (id >= 500 && id < 600) return `"Carry an umbrella this ${isNight ? 'evening' : 'afternoon'}, heavy rain is falling."`;
-    if (id >= 600 && id < 700) return `"Snow is falling. Drive carefully and bundle up!"`;
-    if (id >= 700 && id < 800) return `"Visibility is low due to mist. Take it slow on the roads."`;
+    if (id >= 200 && id < 300) return `"I'd highly recommend staying indoors and keeping warm; there's a storm out there."`;
+    if (id >= 300 && id < 500) return `"You might want to grab a warm drink—it's the perfect weather for a cozy morning coffee."`;
+    if (id >= 500 && id < 600) return `"Make sure you carry an umbrella this ${isNight ? 'evening' : 'afternoon'}, you're going to need it."`;
+    if (id >= 600 && id < 700) return `"Bundle up if you're heading out, and please drive carefully in the snow!"`;
+    if (id >= 700 && id < 800) return `"I'd suggest taking it slow on the roads today; visibility is quite low due to the mist."`;
     
     if (id === 800) {
-        if (isNight) return `"Clear skies make tonight ideal for stargazing."`;
-        if (windSpeed > 15) return `"A bright, breezy day. Great for outdoor activities."`;
-        return `"Perfect, clear weather for a walk outside."`;
+        if (isNight) return `"You should definitely look up tonight—it's an ideal time for stargazing."`;
+        if (windSpeed > 15) return `"It's a beautiful, breezy day out there. I'd suggest planning some outdoor activities!"`;
+        return `"It's absolutely perfect outside. You should take a moment for a refreshing walk."`;
     }
     
-    if (id === 801 || id === 802) return `"Partly cloudy skies. A beautiful, balanced day."`;
+    if (id === 801 || id === 802) return `"It's a really well-balanced, beautiful day. Perfect for leaving the windows open."`;
     
-    return `"Overcast skies. A quiet, contemplative atmosphere."`;
+    return `"It's a quiet, overcast day. I'd suggest putting on some good music and relaxing."`;
 }
 
 // ==========================================
