@@ -588,17 +588,8 @@ function renderDetails(current, aq) {
         adviceList.appendChild(li);
     });
 
-    // AI Weather Insight
-    const insightList = getAIInsights(current, activeSeg);
-    document.getElementById('poetic-text').innerHTML = insightList.sentence;
-    
-    const recList = document.getElementById('ai-recommendations');
-    recList.innerHTML = '';
-    insightList.recommendations.forEach(rec => {
-        const li = document.createElement('li');
-        li.innerHTML = `• ${rec}`;
-        recList.appendChild(li);
-    });
+    // Poetic Weather Insight
+    document.getElementById('poetic-text').innerHTML = getNarrativeText(current);
 
     // Sun Tracker (Simplified Arc)
     const now = Math.floor(Date.now() / 1000);

@@ -99,14 +99,14 @@ body {
 
 #globe-viz {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 150vw !important;
-    height: 150vh !important;
+    bottom: 0;
+    left: 0;
+    transform: translate(-50%, 50%);
+    width: 120vw !important;
+    height: 120vw !important;
     z-index: -5;
     pointer-events: none; /* Let scroll pass through */
-    opacity: 0.6;
+    opacity: 0.8;
 }
 
 #clouds-layer {
