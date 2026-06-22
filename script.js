@@ -215,7 +215,7 @@ async function fetchWeatherData(city) {
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.message || 'Atmospheric anomaly detected. City not found.');
+            throw new Error('City Not Found');
         }
 
         // Prepare enter state
@@ -255,7 +255,7 @@ async function fetchWeatherDataByCoords(lat, lon) {
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.message || 'Atmospheric anomaly detected. Location not found.');
+            throw new Error('City Not Found');
         }
 
         // Pin the location badge to the user's actual GPS location permanently
