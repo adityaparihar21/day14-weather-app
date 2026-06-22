@@ -783,7 +783,7 @@ body {
 .right-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    grid-auto-rows: 160px;
+    grid-auto-rows: minmax(180px, auto);
     gap: 1.5rem;
 }
 
@@ -1161,11 +1161,28 @@ body {
     }
 }
 
+@media (max-width: 768px) {
+    .search-header {
+        max-width: 100%;
+        padding: 0 1rem;
+    }
+    .hero-card {
+        padding: 3rem 1rem;
+        min-height: 400px;
+    }
+    .temperature {
+        font-size: 8rem;
+    }
+}
+
 @media (max-width: 600px) {
-    .hero-card { padding: 2rem; min-height: 300px; }
-    .city-name { font-size: 2rem; }
-    .temperature { font-size: 5rem; }
+    .hero-card { padding: 2rem 1rem; min-height: 350px; }
+    .city-name { font-size: 1.8rem; }
+    .temperature { font-size: 6rem; letter-spacing: -3px; }
+    .unit { font-size: 2.5rem; }
     .weather-center { gap: 1rem; }
-    .right-grid { grid-template-columns: 1fr; }
+    .right-grid { grid-template-columns: 1fr; grid-auto-rows: minmax(160px, auto); }
     .wide-card { grid-column: span 1; }
+    .details-grid { gap: 1rem; }
+    .app-wrapper { padding: 1rem; }
 }

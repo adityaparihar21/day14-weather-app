@@ -232,6 +232,9 @@ async function fetchWeatherDataByCoords(lat, lon) {
             throw new Error(data.message || 'Atmospheric anomaly detected. Location not found.');
         }
 
+        // Pin the location badge to the user's actual GPS location permanently
+        renderLocationBadge(data.locationInfo, data.current);
+        
         renderWeather(data);
         
         // UI State: Success
@@ -255,10 +258,10 @@ async function fetchWeatherDataByCoords(lat, lon) {
 // RENDERING LOGIC
 // ==========================================
 function renderWeather(data) {
-    const { current, forecast, airQuality, locationInfo } = data;
+    const { current, forecast, airQuality } = data;
     
     updateTheme(current);
-    renderLocationBadge(locationInfo, current);
+    // Location badge is explicitly not updated here to keep the user's GPS location pinned
     renderHero(current);
     renderHourly(forecast);
     renderDaily(forecast);
