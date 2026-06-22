@@ -8,9 +8,9 @@
     --surface-2: #5B443A;
     
     /* Text */
-    --text-main: #FFF9F4;
-    --text-secondary: #E4D8CC;
-    --text-muted: #B8A99A;
+    --text-main: #FFFFFF;
+    --text-secondary: rgba(255, 255, 255, 0.85);
+    --text-muted: rgba(255, 255, 255, 0.6);
     
     /* Default Accents (Terracotta, Sand, Olive) */
     --primary: #C86B4A;
