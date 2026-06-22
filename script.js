@@ -720,8 +720,27 @@ function renderParticles(id, timeOfDay) {
     // Clear previous particles
     container.innerHTML = '';
     
-    // Sunny/Clear
+    // Night: Stars
+    if (timeOfDay === 'night' && id >= 800) {
+        for(let i=0; i<60; i++) {
+            const star = document.createElement('div');
+            star.className = 'star-particle';
+            star.style.left = `${Math.random() * 100}vw`;
+            star.style.top = `${Math.random() * 100}vh`;
+            star.style.width = `${Math.random() * 3}px`;
+            star.style.height = star.style.width;
+            star.style.animationDuration = `${2 + Math.random() * 3}s`;
+            star.style.animationDelay = `${Math.random() * 2}s`;
+            container.appendChild(star);
+        }
+    }
+
+    // Sunny/Clear Day: Lens Flare & Warm Bloom
     if (id === 800 && timeOfDay !== 'night') {
+        const flare = document.createElement('div');
+        flare.className = 'lens-flare';
+        container.appendChild(flare);
+        
         for(let i=0; i<30; i++) {
             const p = document.createElement('div');
             p.className = 'dust-particle';
@@ -734,13 +753,26 @@ function renderParticles(id, timeOfDay) {
     }
     // Rain/Thunderstorm/Drizzle
     else if (id >= 200 && id < 600 && id !== 211 && id !== 212 && id !== 221) { 
-        for(let i=0; i<100; i++) {
+        // Slanted drops
+        for(let i=0; i<120; i++) {
             const drop = document.createElement('div');
             drop.className = 'rain-drop';
-            drop.style.left = `${Math.random() * 100}vw`;
-            drop.style.animationDuration = `${0.5 + Math.random() * 0.5}s`;
+            drop.style.left = `${Math.random() * 120 - 10}vw`; // wider to account for slant
+            drop.style.animationDuration = `${0.3 + Math.random() * 0.4}s`;
             drop.style.animationDelay = `${Math.random() * 2}s`;
             container.appendChild(drop);
+        }
+        // Small ripples to simulate hitting glass
+        for(let i=0; i<25; i++) {
+            const ripple = document.createElement('div');
+            ripple.className = 'rain-ripple';
+            ripple.style.left = `${Math.random() * 100}vw`;
+            ripple.style.top = `${Math.random() * 100}vh`;
+            ripple.style.width = `${20 + Math.random() * 30}px`;
+            ripple.style.height = ripple.style.width;
+            ripple.style.animationDuration = `${1 + Math.random() * 2}s`;
+            ripple.style.animationDelay = `${Math.random() * 2}s`;
+            container.appendChild(ripple);
         }
         if(id >= 200 && id < 300) { // Thunderstorm
             const flash = document.createElement('div');
@@ -750,11 +782,11 @@ function renderParticles(id, timeOfDay) {
     }
     // Snow
     else if (id >= 600 && id < 700) {
-        for(let i=0; i<80; i++) {
+        for(let i=0; i<100; i++) {
             const flake = document.createElement('div');
             flake.className = 'snow-flake';
             flake.style.left = `${Math.random() * 100}vw`;
-            flake.style.animationDuration = `${5 + Math.random() * 5}s`;
+            flake.style.animationDuration = `${5 + Math.random() * 8}s`;
             flake.style.animationDelay = `${Math.random() * 5}s`;
             flake.style.opacity = Math.random() * 0.8 + 0.2;
             flake.style.width = `${Math.random() * 6 + 2}px`;
@@ -762,12 +794,12 @@ function renderParticles(id, timeOfDay) {
             container.appendChild(flake);
         }
     }
-    // Fog / Mist / Dust
+    // Fog / Mist
     else if (id >= 700 && id < 800) {
-        for(let i=0; i<5; i++) {
+        for(let i=0; i<8; i++) {
             const haze = document.createElement('div');
             haze.className = 'fog-haze';
-            haze.style.animationDuration = `${20 + Math.random() * 20}s`;
+            haze.style.animationDuration = `${15 + Math.random() * 15}s`;
             haze.style.animationDelay = `${Math.random() * 5}s`;
             haze.style.top = `${Math.random() * 100}vh`;
             container.appendChild(haze);
