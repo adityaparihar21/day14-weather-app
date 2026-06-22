@@ -819,6 +819,11 @@ function updateTheme(current) {
     root.style.setProperty('--theme-3', t3);
     root.style.setProperty('--theme-shadow', t1 + '40');
     
+    // Update Matte Globe Color
+    if (window.myGlobe) {
+        window.myGlobe.globeMaterial().color.set(bgDeep);
+    }
+    
     // Celestial Tracker Logic
     const celestial = document.getElementById('celestial-body');
     if (celestial) {
@@ -1000,51 +1005,36 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }, 500);
 
-    // Interactive WebGL Globe Initialization
+    // Interactive WebGL Globe Initialization (Background Matte)
     const globeContainer = document.getElementById('globe-viz');
     if (globeContainer && window.Globe) {
         window.myGlobe = Globe()
             (globeContainer)
-            .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
             .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
-            .backgroundColor('rgba(0,0,0,0)') // Transparent background to show glass
+            .backgroundColor('rgba(0,0,0,0)') 
             .showAtmosphere(true)
             .atmosphereColor('lightskyblue')
-            .atmosphereAltitude(0.15)
-            .width(globeContainer.clientWidth)
-            .height(globeContainer.clientHeight);
+            .atmosphereAltitude(0.25)
+            .width(window.innerWidth * 1.5)
+            .height(window.innerHeight * 1.5);
 
-        // Auto rotate
+        // Apply Matte Finish
+        const mat = window.myGlobe.globeMaterial();
+        mat.color.set('#13284A'); // Initial color
+        mat.roughness = 1;
+        mat.metalness = 0;
+
+        // Ambient rotation
         window.myGlobe.controls().autoRotate = true;
-        window.myGlobe.controls().autoRotateSpeed = 0.5;
-        window.myGlobe.controls().enableZoom = false; // keep scroll smooth
-
-        // Default pins
-        const defaultPins = [
-            { lat: 28.6139, lng: 77.2090, label: 'Delhi' },
-            { lat: 19.0760, lng: 72.8777, label: 'Mumbai' },
-            { lat: 30.3165, lng: 78.0322, label: 'Dehradun' },
-            { lat: 51.5074, lng: -0.1278, label: 'London' },
-            { lat: 40.7128, lng: -74.0060, label: 'New York' }
-        ];
-
-        window.myGlobe.pointsData(defaultPins)
-            .pointAltitude(0.05)
-            .pointColor(() => '#FF8C7A')
-            .pointRadius(0.8)
-            .onPointHover(point => {
-                document.getElementById('globe-viz').style.cursor = point ? 'pointer' : 'grab';
-            })
-            .onPointClick(point => {
-                document.getElementById('city-input').value = point.label;
-                fetchWeatherData(point.label);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
+        window.myGlobe.controls().autoRotateSpeed = 0.2;
+        window.myGlobe.controls().enableZoom = false; 
+        window.myGlobe.controls().enablePan = false;
+        window.myGlobe.controls().enableRotate = false;
 
         // Resize listener
         window.addEventListener('resize', () => {
-            window.myGlobe.width(globeContainer.clientWidth);
-            window.myGlobe.height(globeContainer.clientHeight);
+            window.myGlobe.width(window.innerWidth * 1.5);
+            window.myGlobe.height(window.innerHeight * 1.5);
         });
     }
 });
