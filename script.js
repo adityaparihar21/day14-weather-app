@@ -761,6 +761,8 @@ function updateTheme(current) {
     let cloudOpacity = 0.4;
     let fogOpacity = 0;
     let ambientGlow = 'transparent';
+    let logo1 = 'var(--secondary-light)';
+    let logo2 = 'var(--secondary)';
     if (timeOfDay === 'morning') {
         bgBase = '#5582a8'; bgDeep = '#2c4a6b'; surface1 = 'rgba(255,255,255,0.1)'; 
         textMain = '#F0F4F8'; glassHighlight = 'rgba(255,255,255,0.2)';
@@ -783,6 +785,9 @@ function updateTheme(current) {
         textMain = '#ffffff'; glassHighlight = 'rgba(255, 255, 255, 0.22)';
         t1 = '#FFD56F'; t2 = '#FAEDCD'; t3 = '#ffffff'; 
         cloudOpacity = 0.3; fogOpacity = 0;
+        // Deep electric indigo/cyan contrasting blue for bright daytime
+        logo1 = '#00c6ff'; 
+        logo2 = '#0072ff';
     }
 
     // Override themes for severe weather (Weather Theme Engine)
@@ -819,6 +824,8 @@ function updateTheme(current) {
     root.style.setProperty('--theme-3', t3);
     root.style.setProperty('--theme-shadow', t1 + '40');
     root.style.setProperty('--ambient-glow', ambientGlow);
+    root.style.setProperty('--logo-1', logo1);
+    root.style.setProperty('--logo-2', logo2);
     
 
     // Celestial Tracker Logic
