@@ -185,33 +185,40 @@ async function handleSearch() {
 }
 
 async function fetchWeatherData(city) {
-    // UI State: Loading
-    DOM.main.classList.add('hidden');
     DOM.error.classList.add('hidden');
-    DOM.loading.classList.remove('hidden');
+    
+    // Smooth exit
+    DOM.main.classList.add('view-transition-exit');
 
     try {
-        const response = await fetch(`/api/weather?city=${encodeURIComponent(city)}`);
+        // Fetch and wait for CSS exit transition to finish concurrently
+        const [response] = await Promise.all([
+            fetch(`/api/weather?city=${encodeURIComponent(city)}`),
+            new Promise(r => setTimeout(r, 400))
+        ]);
+        
         const data = await response.json();
 
         if (!response.ok) {
             throw new Error(data.message || 'Atmospheric anomaly detected. City not found.');
         }
 
+        // Prepare enter state
+        DOM.main.classList.remove('view-transition-exit');
+        DOM.main.classList.add('view-transition-enter');
+        DOM.main.classList.remove('hidden'); // Ensure it's not display: none
+        DOM.loading.classList.add('hidden'); // Hide loader if it was there
+        
         renderWeather(data);
         
-        // UI State: Success
-        DOM.loading.classList.add('hidden');
-        DOM.main.classList.remove('hidden');
-        DOM.main.classList.add('fade-in');
-        
-        // Re-trigger fade-in animation safely
-        DOM.main.classList.remove('fade-in');
-        void DOM.main.offsetWidth; // Trigger reflow
-        DOM.main.classList.add('fade-in');
+        // Trigger reflow and transition in
+        void DOM.main.offsetWidth;
+        DOM.main.classList.remove('view-transition-enter');
 
     } catch (err) {
         console.error(err);
+        DOM.main.classList.add('hidden');
+        DOM.main.classList.remove('view-transition-exit');
         DOM.loading.classList.add('hidden');
         DOM.errorText.textContent = err.message;
         DOM.error.classList.remove('hidden');
@@ -219,13 +226,17 @@ async function fetchWeatherData(city) {
 }
 
 async function fetchWeatherDataByCoords(lat, lon) {
-    // UI State: Loading
-    DOM.main.classList.add('hidden');
     DOM.error.classList.add('hidden');
-    DOM.loading.classList.remove('hidden');
+    
+    // Smooth exit
+    DOM.main.classList.add('view-transition-exit');
 
     try {
-        const response = await fetch(`/api/weather?lat=${lat}&lon=${lon}`);
+        const [response] = await Promise.all([
+            fetch(`/api/weather?lat=${lat}&lon=${lon}`),
+            new Promise(r => setTimeout(r, 400))
+        ]);
+        
         const data = await response.json();
 
         if (!response.ok) {
@@ -235,19 +246,22 @@ async function fetchWeatherDataByCoords(lat, lon) {
         // Pin the location badge to the user's actual GPS location permanently
         renderLocationBadge(data.locationInfo, data.current);
         
+        // Prepare enter state
+        DOM.main.classList.remove('view-transition-exit');
+        DOM.main.classList.add('view-transition-enter');
+        DOM.main.classList.remove('hidden');
+        DOM.loading.classList.add('hidden');
+        
         renderWeather(data);
         
-        // UI State: Success
-        DOM.loading.classList.add('hidden');
-        DOM.main.classList.remove('hidden');
-        
-        // Re-trigger fade-in animation safely
-        DOM.main.classList.remove('fade-in');
-        void DOM.main.offsetWidth; // Trigger reflow
-        DOM.main.classList.add('fade-in');
+        // Trigger reflow and transition in
+        void DOM.main.offsetWidth;
+        DOM.main.classList.remove('view-transition-enter');
 
     } catch (err) {
         console.error(err);
+        DOM.main.classList.add('hidden');
+        DOM.main.classList.remove('view-transition-exit');
         DOM.loading.classList.add('hidden');
         DOM.errorText.textContent = err.message;
         DOM.error.classList.remove('hidden');

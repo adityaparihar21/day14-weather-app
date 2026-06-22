@@ -43,11 +43,11 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Satoshi', sans-serif;
 }
 
 .font-story {
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Satoshi', sans-serif;
 }
 
 body {
@@ -394,6 +394,15 @@ body {
     line-height: 1;
     font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
     filter: drop-shadow(0 10px 20px var(--theme-shadow));
+    display: inline-block;
+    animation: float-emoji 6s ease-in-out infinite;
+    transform-origin: center bottom;
+}
+
+@keyframes float-emoji {
+    0%, 100% { transform: translateY(0) scale(1) rotate(0deg); }
+    33% { transform: translateY(-15px) scale(1.05) rotate(3deg); }
+    66% { transform: translateY(-5px) scale(0.98) rotate(-2deg); }
 }
 
 .hour-emoji {
@@ -401,11 +410,23 @@ body {
     line-height: 1;
     margin: 1rem 0;
     font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+    display: inline-block;
+    animation: bounce-emoji 3s ease-in-out infinite alternate;
+}
+
+@keyframes bounce-emoji {
+    0% { transform: translateY(0) scale(1); }
+    100% { transform: translateY(-6px) scale(1.1); }
 }
 
 .day-emoji {
     font-size: 1.5rem;
     font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+    display: inline-block;
+    transition: transform 0.3s var(--ease-fluid);
+}
+.day-item:hover .day-emoji {
+    transform: scale(1.3) rotate(10deg);
 }
 
 .search-icon {
@@ -694,7 +715,7 @@ body {
 }
 
 .feels-like {
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Satoshi', sans-serif;
     color: var(--text-secondary);
     font-size: 1.3rem;
     font-weight: 300;
@@ -1149,6 +1170,23 @@ body {
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(20px); filter: blur(10px); }
     to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+#main-content {
+    transition: opacity 0.5s var(--ease-fluid), transform 0.5s var(--ease-fluid), filter 0.5s var(--ease-fluid);
+}
+
+.view-transition-exit {
+    opacity: 0 !important;
+    transform: translateY(-20px) scale(0.98);
+    filter: blur(10px);
+    pointer-events: none;
+}
+
+.view-transition-enter {
+    opacity: 0 !important;
+    transform: translateY(20px) scale(1.02);
+    filter: blur(10px);
 }
 
 /* RESPONSIVE */
