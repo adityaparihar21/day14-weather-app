@@ -43,11 +43,33 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Satoshi', sans-serif;
+    font-family: 'Geist', sans-serif;
 }
 
 .font-story {
-    font-family: 'Satoshi', sans-serif;
+    font-family: 'Geist', sans-serif;
+}
+
+.val-large, .temperature, #city-name, .hourly-temp {
+    font-family: 'Inter', sans-serif;
+    font-feature-settings: "tnum";
+}
+
+.skeleton-text {
+    display: inline-block;
+    min-height: 1em;
+    min-width: 4ch;
+    background: linear-gradient(90deg, var(--surface-1) 25%, var(--bg-deep) 50%, var(--surface-1) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 2s infinite linear;
+    border-radius: 4px;
+    color: transparent !important;
+    opacity: 0.8;
+}
+
+@keyframes skeleton-loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
 }
 
 body {
@@ -716,9 +738,10 @@ body {
 .temperature {
     font-size: 10rem;
     font-weight: 200;
-    line-height: 0.9;
-    letter-spacing: -6px;
+    line-height: 1;
+    letter-spacing: -4px;
     color: var(--text-main);
+    text-shadow: 0 4px 20px var(--theme-shadow);
 }
 
 .unit {

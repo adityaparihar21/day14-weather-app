@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WeatherHUT - Cinematic Experience</title>
-    <!-- Premium Typography (Satoshi) -->
-    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500,300,400&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Inter:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <!-- WebGL Dependencies -->
@@ -47,8 +48,8 @@
                 <div class="location-badge hidden" id="location-badge">
                     <i class="fas fa-map-marker-alt loc-icon"></i>
                     <div class="loc-text">
-                        <p class="loc-city" id="loc-city">--</p>
-                        <p class="loc-state" id="loc-state">--</p>
+                        <p class="loc-city" id="loc-city"><span class="skeleton-text">loading</span></p>
+                        <p class="loc-state" id="loc-state"><span class="skeleton-text">state</span></p>
                     </div>
                 </div>
             </div>
@@ -63,8 +64,8 @@
                 </div>
                 <div class="hero-inner">
                     <div class="hero-header">
-                        <h1 id="city-name" class="city-name">--</h1>
-                        <p id="date-time" class="date-time">--</p>
+                        <h1 id="city-name" class="city-name"><span class="skeleton-text">Location</span></h1>
+                        <p id="date-time" class="date-time"><span class="skeleton-text">Loading time...</span></p>
                     </div>
                     
                     <div class="weather-center">
@@ -73,17 +74,17 @@
                             <div class="icon-glow"></div>
                         </div>
                         <div class="temp-wrapper">
-                            <span id="temperature" class="temperature">--</span>
+                            <span id="temperature" class="temperature"><span class="skeleton-text">--</span></span>
                             <span class="unit">°</span>
                         </div>
                     </div>
                     
                     <div class="hero-footer">
                         <div class="condition-wrapper">
-                            <p id="weather-condition" class="weather-condition">--</p>
-                            <p id="weather-phrase" class="weather-phrase">--</p>
+                            <p id="weather-condition" class="weather-condition"><span class="skeleton-text">condition</span></p>
+                            <p id="weather-phrase" class="weather-phrase"><span class="skeleton-text">loading details</span></p>
                         </div>
-                        <p id="feels-like" class="feels-like">Feels like --°</p>
+                        <p id="feels-like" class="feels-like"><span class="skeleton-text">Feels like --°</span></p>
                     </div>
                 </div>
                 <!-- Shimmer Reflection -->
@@ -124,7 +125,7 @@
                                 <div class="arrow"><i class="fas fa-location-arrow"></i></div>
                             </div>
                             <div class="viz-value">
-                                <p id="wind-speed" class="val-large">--</p>
+                                <p id="wind-speed" class="val-large"><span class="skeleton-text">--</span></p>
                                 <p class="val-label">km/h</p>
                                 <p class="trend-text" id="wind-trend" style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.2rem;">↘ Calm</p>
                             </div>
@@ -142,7 +143,7 @@
                                 <circle class="progress" id="humidity-ring" cx="50" cy="50" r="40"></circle>
                             </svg>
                             <div class="ring-content">
-                                <p id="humidity-val" class="val-large">--</p>
+                                <p id="humidity-val" class="val-large"><span class="skeleton-text">--</span></p>
                                 <p class="val-label">%</p>
                             </div>
                         </div>
@@ -154,7 +155,7 @@
                             <h4><i class="fas fa-tachometer-alt"></i> Pressure</h4>
                         </div>
                         <div class="viz-center" style="margin-top: 1rem;">
-                            <p id="pressure-val" class="val-large">--</p>
+                            <p id="pressure-val" class="val-large"><span class="skeleton-text">--</span></p>
                             <p class="val-label">hPa</p>
                         </div>
                         <div class="sparkline-container" style="height: 35px; width: 100%; margin-top: auto;">
@@ -177,7 +178,7 @@
                                 <circle class="progress" id="vis-ring" cx="50" cy="50" r="40"></circle>
                             </svg>
                             <div class="ring-content">
-                                <p id="visibility-val" class="val-large">--</p>
+                                <p id="visibility-val" class="val-large"><span class="skeleton-text">--</span></p>
                                 <p class="val-label">km</p>
                             </div>
                         </div>

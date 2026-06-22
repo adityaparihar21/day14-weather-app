@@ -696,11 +696,13 @@ function updateTheme(current) {
     if (id >= 200 && id < 600) { // Rain/Thunderstorm
         bgBase = '#1B2631'; bgDeep = '#0c1218'; surface1 = 'rgba(0,0,0,0.3)';
         t1 = '#4A6984'; t2 = '#7A9E9F'; t3 = '#B8D8D8'; 
+        textMain = '#FFFFFF';
         cloudOpacity = 0.8; fogOpacity = 0.4;
         document.body.classList.add(id >= 200 && id < 300 ? 'theme-storm' : 'theme-rain');
     } else if (id >= 600 && id < 700) { // Snow
         bgBase = '#556d82'; bgDeep = '#34495E'; surface1 = 'rgba(255,255,255,0.2)';
         t1 = '#8CA8C6'; t2 = '#C2D3E4'; t3 = '#E6EEF5'; 
+        textMain = '#F0F4F8';
         cloudOpacity = 0.9; fogOpacity = 0.5;
         document.body.classList.add('theme-snow');
     } else if (id >= 700 && id < 800) { // Fog/Mist
