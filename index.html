@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A premium weather application showing real-time weather data.">
+    <title>Premium Weather App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <h1>Weather Explorer</h1>
+            <div class="search-box">
+                <input type="text" id="city-input" placeholder="Enter city name... (e.g. London)" autocomplete="off">
+                <button id="search-btn"><i class="fas fa-search"></i></button>
+            </div>
+        </header>
+
+        <main>
+            <div id="loading" class="hidden">
+                <div class="spinner"></div>
+                <p>Loading Weather...</p>
+            </div>
+
+            <div id="error-message" class="hidden">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p id="error-text">City Not Found</p>
+            </div>
+
+            <div id="weather-card" class="hidden">
+                <h2 id="city-name">--</h2>
+                <div class="weather-main">
+                    <img id="weather-icon" src="" alt="Weather Icon">
+                    <div class="temp">
+                        <span id="temperature">--</span>°C
+                    </div>
+                </div>
+                <p id="weather-condition">--</p>
+                
+                <div class="weather-details">
+                    <div class="detail">
+                        <i class="fas fa-tint"></i>
+                        <div>
+                            <p class="detail-label">Humidity</p>
+                            <p id="humidity" class="detail-value">--%</p>
+                        </div>
+                    </div>
+                    <div class="detail">
+                        <i class="fas fa-wind"></i>
+                        <div>
+                            <p class="detail-label">Wind Speed</p>
+                            <p id="wind-speed" class="detail-value">-- km/h</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
