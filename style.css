@@ -349,32 +349,32 @@ body {
 .modal-rich-data {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
-    background: rgba(0, 0, 0, 0.2);
-    padding: 1.5rem;
-    border-radius: 20px;
-    margin-top: 2rem;
+    gap: 2rem;
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--glass-border);
     text-align: left;
-    border: 1px solid var(--glass-border);
 }
 
 .rich-data-item {
     display: flex;
     flex-direction: column;
-    gap: 0.3rem;
+    gap: 0.5rem;
 }
 
 .rich-label {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
+    font-weight: 500;
     color: var(--text-muted);
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 1.5px;
 }
 
 .rich-val {
-    font-size: 1.3rem;
-    font-weight: 500;
+    font-size: 2rem;
+    font-weight: 300;
     color: var(--text-main);
+    line-height: 1;
 }
 
 .hero-emoji {
