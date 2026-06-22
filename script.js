@@ -53,12 +53,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('metrics-modal');
     const modalClose = document.getElementById('modal-close');
     
-    modalClose.addEventListener('click', () => {
-        modal.classList.add('hidden');
-    });
+    modalClose.addEventListener('click', closeModal);
     
     modal.addEventListener('click', (e) => {
-        if(e.target === modal) modal.classList.add('hidden');
+        if(e.target === modal) closeModal();
+    });
+
+    // ==========================================
+    // PREMIUM MOTION - GLOBAL PARALLAX
+    // ==========================================
+    document.addEventListener('mousemove', (e) => {
+        const x = e.clientX / window.innerWidth;
+        const y = e.clientY / window.innerHeight;
+        
+        // Global Parallax Rotation (-2deg to 2deg)
+        const rotateX = (y - 0.5) * -4; 
+        const rotateY = (x - 0.5) * 4;
+        
+        const appWrapper = document.querySelector('.app-wrapper');
+        if(appWrapper) {
+            requestAnimationFrame(() => {
+                appWrapper.style.transform = `perspective(2000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
+        }
     });
 
     document.querySelectorAll('.metric-card').forEach(card => {
@@ -240,7 +257,7 @@ async function fetchWeatherDataByCoords(lat, lon) {
 function renderWeather(data) {
     const { current, forecast, airQuality, locationInfo } = data;
     
-    updateTheme(current.weather[0].id, current.weather[0].icon);
+    updateTheme(current);
     renderLocationBadge(locationInfo, current);
     renderHero(current);
     renderHourly(forecast);
@@ -274,17 +291,48 @@ function renderLocationBadge(locationInfo, current) {
 function renderHero(current) {
     document.getElementById('city-name').textContent = `${current.name}, ${current.sys.country}`;
     
-    const dateOpts = { weekday: 'long', month: 'short', day: 'numeric' };
-    document.getElementById('date-time').textContent = new Date().toLocaleDateString('en-US', dateOpts);
+    const now = new Date(current.dt * 1000);
+    const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+    document.getElementById('date-time').textContent = dateStr;
     
+    animateValue('temperature', 0, Math.round(current.main.temp), 1500);
     document.getElementById('weather-condition').textContent = current.weather[0].description;
-    document.getElementById('weather-phrase').textContent = getWeatherPhrase(current.weather[0].id);
-    document.getElementById('feels-like').textContent = `Feels like ${Math.round(current.main.feels_like)}°`;
+    
+    const story = generateWeatherStory(Math.round(current.main.temp), current.weather[0].id, current.wind.speed);
+    document.getElementById('feels-like').textContent = story;
+    document.getElementById('weather-phrase').style.display = 'none';
     
     const iconCode = current.weather[0].icon;
-    document.getElementById('weather-emoji').textContent = getWeatherEmoji(current.weather[0].id, iconCode.includes('n'));
+    document.getElementById('hero-icon-wrapper').innerHTML = `
+        <div class="hero-emoji">${getWeatherEmoji(current.weather[0].id, iconCode.includes('n'))}</div>
+        <div class="icon-glow"></div>
+    `;
+}
 
-    animateValue('temperature', 0, Math.round(current.main.temp), 1500);
+function generateWeatherStory(temp, conditionId, windSpeed) {
+    let tempStory = "";
+    if (temp < 0) tempStory = "Freezing temperatures.";
+    else if (temp < 10) tempStory = "A cold, crisp atmosphere.";
+    else if (temp < 20) tempStory = "A cool and refreshing breeze.";
+    else if (temp < 30) tempStory = "Comfortably warm conditions.";
+    else tempStory = "Intense, radiating heat.";
+
+    let condStory = "";
+    if (conditionId >= 200 && conditionId < 300) condStory = "Stay inside, a heavy storm is rolling through.";
+    else if (conditionId >= 300 && conditionId < 500) condStory = "Light drizzles are tracing the glass.";
+    else if (conditionId >= 500 && conditionId < 600) condStory = "Steady rain washes the streets.";
+    else if (conditionId >= 600 && conditionId < 700) condStory = "Snowflakes are settling quietly.";
+    else if (conditionId >= 700 && conditionId < 800) condStory = "A thick atmospheric haze obscures the distance.";
+    else if (conditionId === 800) condStory = "Perfectly clear skies stretching endlessly.";
+    else if (conditionId === 801 || conditionId === 802) condStory = "A few clouds lazily drifting by.";
+    else condStory = "A heavy blanket of clouds overhead.";
+    
+    let windStory = "";
+    if (windSpeed > 20) windStory = " with strong, disruptive gusts.";
+    else if (windSpeed > 10) windStory = " with a noticeable breeze.";
+    else windStory = ".";
+
+    return `${tempStory} ${condStory.replace('.', '')}${windStory}`;
 }
 
 function renderHourly(forecast) {
@@ -521,50 +569,107 @@ function getPoeticWeather(id) {
 // ==========================================
 // UTILITIES & EFFECTS
 // ==========================================
-function updateTheme(weatherId, iconCode) {
+function updateTheme(current) {
     const root = document.documentElement;
-    const isNight = iconCode.includes('n');
-
-    if (isNight) {
-        // Night Theme
-        root.style.setProperty('--theme-1', '#142C4D'); // Night Blue
-        root.style.setProperty('--theme-2', '#7C6CFF'); // Aurora Purple
-        root.style.setProperty('--theme-3', '#9D8BFF'); // Lavender Glow
-        root.style.setProperty('--theme-shadow', 'rgba(124, 108, 255, 0.2)');
-        return;
+    const id = current.weather[0].id;
+    const now = current.dt;
+    const sunrise = current.sys.sunrise;
+    const sunset = current.sys.sunset;
+    
+    // Time of Day Logic
+    let timeOfDay = 'afternoon';
+    const hourMs = 3600;
+    
+    if (now < sunrise - hourMs || now > sunset + hourMs) {
+        timeOfDay = 'night';
+    } else if (now >= sunrise - hourMs && now <= sunrise + hourMs * 2) {
+        timeOfDay = 'morning';
+    } else if (now >= sunset - hourMs && now <= sunset + hourMs) {
+        timeOfDay = 'sunset';
+    } else {
+        timeOfDay = 'afternoon';
     }
 
-    // OpenWeatherMap ID ranges
-    if (weatherId >= 200 && weatherId < 300) { // Thunderstorm
-        root.style.setProperty('--theme-1', '#08111F'); // Midnight Navy
-        root.style.setProperty('--theme-2', '#675BFF'); // Electric Violet
-        root.style.setProperty('--theme-3', '#7C6CFF'); // Aurora Purple
-        root.style.setProperty('--theme-shadow', 'rgba(103, 91, 255, 0.2)');
-    } else if (weatherId >= 300 && weatherId < 600) { // Rain/Drizzle
-        root.style.setProperty('--theme-1', '#102E46'); // Deep Ocean
-        root.style.setProperty('--theme-2', '#3DD9FF'); // Electric Cyan
-        root.style.setProperty('--theme-3', '#6FCFFF'); // Sky Glow
-        root.style.setProperty('--theme-shadow', 'rgba(61, 217, 255, 0.15)');
-    } else if (weatherId >= 600 && weatherId < 700) { // Snow
-        root.style.setProperty('--theme-1', '#73E8FF'); // Ice Blue
-        root.style.setProperty('--theme-2', '#9EEBFF'); // Crystal Blue
-        root.style.setProperty('--theme-3', '#FAFAFA'); // White
-        root.style.setProperty('--theme-shadow', 'rgba(115, 232, 255, 0.15)');
-    } else if (weatherId >= 700 && weatherId < 800) { // Atmosphere (Fog/Mist)
-        root.style.setProperty('--theme-1', '#64748B'); // Disabled/Grey
-        root.style.setProperty('--theme-2', '#8EA4B7'); // Muted
-        root.style.setProperty('--theme-3', '#C6D5E3'); // Secondary text
-        root.style.setProperty('--theme-shadow', 'rgba(142, 164, 183, 0.15)');
-    } else if (weatherId === 800) { // Clear (Sunny)
-        root.style.setProperty('--theme-1', '#FFD56B'); // Golden Sun
-        root.style.setProperty('--theme-2', '#FFB84D'); // Warm Orange
-        root.style.setProperty('--theme-3', '#FF8C7A'); // Sunset Coral
-        root.style.setProperty('--theme-shadow', 'rgba(255, 213, 107, 0.15)');
-    } else { // Clouds
-        root.style.setProperty('--theme-1', '#8EA4B7'); // Muted Grey
-        root.style.setProperty('--theme-2', '#64748B'); // Disabled Grey
-        root.style.setProperty('--theme-3', '#C6D5E3'); // Silver
-        root.style.setProperty('--theme-shadow', 'rgba(142, 164, 183, 0.1)');
+    // Base colors based on condition
+    let t1, t2, t3;
+    let bgBase, bgDeep, surface1, textMain, glassHighlight;
+
+    if (timeOfDay === 'morning') {
+        bgBase = '#2B3A4A'; bgDeep = '#1A2430'; surface1 = '#3A4A5A'; 
+        textMain = '#F0F4F8'; glassHighlight = 'rgba(255,255,255,0.15)';
+        t1 = '#E2B882'; t2 = '#D4A373'; t3 = '#FAEDCD'; 
+    } else if (timeOfDay === 'sunset') {
+        bgBase = '#3D2314'; bgDeep = '#201007'; surface1 = '#5A3420'; 
+        textMain = '#FFF4EB'; glassHighlight = 'rgba(255,255,255,0.2)';
+        t1 = '#FF7B54'; t2 = '#FFB26B'; t3 = '#FFD56F'; 
+    } else if (timeOfDay === 'night') {
+        bgBase = '#111218'; bgDeep = '#0B0C10'; surface1 = 'rgba(26, 28, 41, 0.6)'; 
+        textMain = '#E0E2EB'; glassHighlight = 'rgba(255, 255, 255, 0.05)';
+        t1 = '#323652'; t2 = '#4A5073'; t3 = '#6C739A'; 
+    } else {
+        // Afternoon (Default Warm)
+        bgBase = '#2A1E1A'; bgDeep = '#201713'; surface1 = '#4A362D'; 
+        textMain = '#FFF9F4'; glassHighlight = 'rgba(255, 255, 255, 0.22)';
+        t1 = '#C86B4A'; t2 = '#E28A62'; t3 = '#F2C572'; 
+    }
+
+    // Override themes for severe weather
+    if (id >= 200 && id < 600) { // Rain/Thunderstorm
+        bgBase = '#1B2631'; bgDeep = '#10171E'; surface1 = '#2C3E50';
+        t1 = '#4A6984'; t2 = '#7A9E9F'; t3 = '#B8D8D8'; 
+    } else if (id >= 600 && id < 700) { // Snow
+        bgBase = '#34495E'; bgDeep = '#2C3E50'; surface1 = '#465C70';
+        t1 = '#8CA8C6'; t2 = '#C2D3E4'; t3 = '#E6EEF5'; 
+    }
+
+    root.style.setProperty('--bg-base', bgBase);
+    root.style.setProperty('--bg-deep', bgDeep);
+    root.style.setProperty('--surface-1', surface1);
+    root.style.setProperty('--text-main', textMain);
+    root.style.setProperty('--glass-highlight', glassHighlight);
+    
+    root.style.setProperty('--theme-1', t1);
+    root.style.setProperty('--theme-2', t2);
+    root.style.setProperty('--theme-3', t3);
+    root.style.setProperty('--theme-shadow', t1 + '40');
+    
+    // Celestial Tracker Logic
+    const celestial = document.getElementById('celestial-body');
+    if (celestial) {
+        let percentage = 0;
+        let isSun = true;
+        
+        if (now >= sunrise && now <= sunset) {
+            // Day time arc
+            percentage = (now - sunrise) / (sunset - sunrise);
+            celestial.style.background = 'radial-gradient(circle, #FFD56B 0%, #FF8C7A 100%)';
+            celestial.style.boxShadow = '0 0 100px #FFD56B';
+            celestial.style.opacity = '0.8';
+        } else {
+            // Night time arc
+            isSun = false;
+            let start = sunset;
+            let end = sunrise + (24 * hourMs); // tomorrow's sunrise approx
+            if (now < sunrise) {
+                start = sunset - (24 * hourMs); // yesterday's sunset approx
+                end = sunrise;
+            }
+            percentage = (now - start) / (end - start);
+            celestial.style.background = 'radial-gradient(circle, #E6EEF5 0%, #8CA8C6 100%)';
+            celestial.style.boxShadow = '0 0 80px #E6EEF5';
+            celestial.style.opacity = '0.4';
+        }
+        
+        // Clamp percentage 0-1
+        percentage = Math.max(0, Math.min(1, percentage));
+        
+        // Arc math (Parabola)
+        const xPos = (percentage * 120) - 10; // -10% to 110%
+        const yPos = 100 - (Math.sin(percentage * Math.PI) * 120); 
+        
+        celestial.style.left = `${xPos}%`;
+        celestial.style.top = `${yPos}%`;
+        celestial.style.transform = `translate(-50%, -50%)`;
     }
 }
 
