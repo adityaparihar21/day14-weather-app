@@ -174,9 +174,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// ==========================================
-// API LOGIC
-// ==========================================
+    const placeholders = ["Search city...", "Try 'Tokyo'...", "Try 'New York'...", "Try 'London'..."];
+    let placeholderIdx = 0;
+    setInterval(() => {
+        placeholderIdx = (placeholderIdx + 1) % placeholders.length;
+        DOM.input.setAttribute('placeholder', placeholders[placeholderIdx]);
+    }, 3000);
+
+    // Cmd+K to focus search
+    document.addEventListener('keydown', (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+            e.preventDefault();
+            DOM.input.focus();
+        }
+    });
+
+    // ==========================================
+    // INITIALIZATION
+    // ==========================================
 async function handleSearch() {
     const city = DOM.input.value.trim();
     if (!city) return;
@@ -415,11 +430,15 @@ function renderDetails(current, aq) {
     window._currentMetrics = { current, aq };
 
     // Wind
-    const windSpeed = Math.round(current.wind.speed * 3.6);
+    const windSpeed = Math.round((current.wind.speed * 3600) / 1000); // m/s to km/h
     animateValue('wind-speed', 0, windSpeed, 1000);
     const arrow = document.querySelector('#wind-compass .arrow');
     arrow.style.transform = `rotate(${current.wind.deg}deg)`;
     window._metricsDesc.wind = getWindDesc(windSpeed);
+    
+    // Wind Trend
+    const windTrendText = windSpeed > 20 ? "↗ Strong Winds" : "↘ Calm";
+    document.getElementById('wind-trend').textContent = windTrendText;
 
     // Humidity
     const humidity = current.main.humidity;
@@ -430,13 +449,32 @@ function renderDetails(current, aq) {
     setTimeout(() => { ring.style.strokeDashoffset = offset; }, 100);
     window._metricsDesc.humidity = getHumDesc(humidity);
 
-    // Pressure & Visibility
-    animateValue('pressure-val', 0, current.main.pressure, 1500);
-    window._metricsDesc.pressure = getPressDesc(current.main.pressure);
+    // Pressure
+    const pressureVal = current.main.pressure;
+    animateValue('pressure-val', 0, pressureVal, 1500);
+    window._metricsDesc.pressure = getPressDesc(pressureVal);
     
+    // Pressure Trend
+    let pressTrend = "Normal";
+    if (pressureVal > 1013) pressTrend = "↗ High Pressure";
+    else if (pressureVal < 1013) pressTrend = "↘ Low Pressure";
+    document.getElementById('pressure-trend').textContent = pressTrend;
+    
+    // Visibility
     const visKm = Math.round(current.visibility / 1000);
     animateValue('visibility-val', 0, visKm, 1000);
     window._metricsDesc.visibility = getVisDesc(visKm);
+    
+    // Visibility Ring & Trend
+    const visRing = document.getElementById('vis-ring');
+    const visPercent = Math.min((visKm / 10) * 100, 100);
+    const visOffset = circumference - (visPercent / 100) * circumference;
+    setTimeout(() => { visRing.style.strokeDashoffset = visOffset; }, 100);
+    
+    let visTrend = "Perfectly clear";
+    if (visKm < 2) visTrend = "Dangerously low";
+    else if (visKm < 5) visTrend = "Slightly hazy";
+    document.getElementById('vis-trend').textContent = visTrend;
 
     // Air Quality (US EPA AQI from PM2.5)
     const pm25 = aq.list[0].components.pm2_5 || 0;

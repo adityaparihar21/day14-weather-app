@@ -30,6 +30,7 @@
                 <div class="search-box">
                     <i class="fas fa-search search-icon"></i>
                     <input type="text" id="city-input" placeholder="Search city..." autocomplete="off">
+                    <span class="kbd-hint">⌘K</span>
                     <button id="search-btn">
                         <span class="btn-glow"></span>
                         <span class="btn-text">Search</span>
@@ -117,6 +118,7 @@
                             <div class="viz-value">
                                 <p id="wind-speed" class="val-large">--</p>
                                 <p class="val-label">km/h</p>
+                                <p class="trend-text" id="wind-trend" style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.2rem;">↘ Calm</p>
                             </div>
                         </div>
                     </div>
@@ -154,14 +156,21 @@
                     </div>
 
                     <!-- Pressure -->
-                    <div class="detail-card square-card glass-panel metric-card" data-type="pressure">
+                    <div class="detail-card square-card glass-panel metric-card" data-type="pressure" style="display: flex; flex-direction: column; justify-content: space-between;">
                         <div class="card-header">
                             <h4><i class="fas fa-tachometer-alt"></i> Pressure</h4>
                         </div>
-                        <div class="viz-center">
+                        <div class="viz-center" style="margin-top: 1rem;">
                             <p id="pressure-val" class="val-large">--</p>
                             <p class="val-label">hPa</p>
                         </div>
+                        <div class="sparkline-container" style="height: 35px; width: 100%; margin-top: auto;">
+                            <svg viewBox="0 0 100 35" preserveAspectRatio="none" style="width: 100%; height: 100%; overflow: visible;">
+                                <path id="pressure-sparkline" d="M0,25 Q20,15 40,30 T80,5 T100,15" fill="none" stroke="var(--theme-1)" stroke-width="2" stroke-linecap="round"></path>
+                                <circle id="pressure-sparkline-dot" cx="100" cy="15" r="3" fill="var(--theme-1)"></circle>
+                            </svg>
+                        </div>
+                        <p class="trend-text" id="pressure-trend" style="text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">↗ Rising</p>
                     </div>
 
                     <!-- Sun Tracker -->
@@ -191,14 +200,21 @@
                     </div>
 
                     <!-- Visibility -->
-                    <div class="detail-card square-card glass-panel metric-card" data-type="visibility">
+                    <div class="detail-card square-card glass-panel metric-card" data-type="visibility" style="display: flex; flex-direction: column;">
                         <div class="card-header">
                             <h4><i class="far fa-eye"></i> Visibility</h4>
                         </div>
-                        <div class="viz-center">
-                            <p id="visibility-val" class="val-large">--</p>
-                            <p class="val-label">km</p>
+                        <div class="ring-viz" style="margin: auto 0;">
+                            <svg viewBox="0 0 100 100">
+                                <circle class="bg" cx="50" cy="50" r="40"></circle>
+                                <circle class="progress" id="vis-ring" cx="50" cy="50" r="40"></circle>
+                            </svg>
+                            <div class="ring-content">
+                                <p id="visibility-val" class="val-large">--</p>
+                                <p class="val-label">km</p>
+                            </div>
                         </div>
+                        <p class="trend-text" id="vis-trend" style="text-align: center; font-size: 0.85rem; color: var(--text-muted);">Perfectly clear</p>
                     </div>
 
                     <!-- Poetic Weather Insight -->
