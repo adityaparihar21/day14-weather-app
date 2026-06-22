@@ -231,12 +231,15 @@ body {
 
 .glass-panel:hover {
     animation-play-state: paused;
-    transform: translateY(-5px);
+    transform: translateY(-8px);
     border-color: var(--glass-highlight);
+    background: radial-gradient(circle 600px at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.15), transparent 40%), var(--surface-1);
+    backdrop-filter: blur(32px);
+    -webkit-backdrop-filter: blur(32px);
     box-shadow: 
-        0 12px 40px 0 rgba(11, 11, 12, 0.6),
-        0 4px 12px 0 rgba(11, 11, 12, 0.4),
-        0 0 30px var(--theme-shadow),
+        0 20px 50px 0 rgba(11, 11, 12, 0.7),
+        0 6px 16px 0 rgba(11, 11, 12, 0.5),
+        0 0 40px var(--theme-shadow),
         inset 0 1px 2px var(--glass-highlight),
         inset 0 -1px 2px rgba(0,0,0,0.2);
 }

@@ -851,6 +851,8 @@ function updateTheme(current) {
 function animateValue(id, start, end, duration) {
     if (start === end) return;
     const obj = document.getElementById(id);
+    if (!obj) return;
+    obj.dataset.animValue = end; // Store value for hover replays
     let startTimestamp = null;
     const step = (timestamp) => {
         if (!startTimestamp) startTimestamp = timestamp;
@@ -986,5 +988,25 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }, 500);
 
+    // Interactive Hover Sequence
+    document.querySelectorAll('.glass-panel').forEach(panel => {
+        // Reflection follows cursor
+        panel.addEventListener('mousemove', e => {
+            const rect = panel.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            panel.style.setProperty('--mouse-x', `${x}px`);
+            panel.style.setProperty('--mouse-y', `${y}px`);
+        });
+        
+        // Re-trigger number counting on hover
+        panel.addEventListener('mouseenter', () => {
+            const valEl = panel.querySelector('.val-huge');
+            if (valEl && valEl.dataset.animValue) {
+                const endVal = parseFloat(valEl.dataset.animValue);
+                animateValue(valEl.id, 0, endVal, 1000);
+            }
+        });
+    });
 
 });
