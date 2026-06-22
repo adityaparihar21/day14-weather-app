@@ -280,7 +280,7 @@ async function fetchWeatherDataByCoords(lat, lon) {
         DOM.loading.classList.add('hidden');
         DOM.errorText.textContent = err.message;
         DOM.error.classList.remove('hidden');
-    return 300;
+    }
 }
 
 function getAQIAdvice(segment) {
