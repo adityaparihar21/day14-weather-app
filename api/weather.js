@@ -47,6 +47,9 @@ export default async function handler(req, res) {
             locationInfo: geoData[0] || null
         };
 
+        // 4. Set Edge Caching Headers (Cache for 30 minutes, stale-while-revalidate for 1 day)
+        res.setHeader('Cache-Control', 's-maxage=1800, stale-while-revalidate=86400');
+
         return res.status(200).json(unifiedData);
     } catch (error) {
         console.error("Error fetching weather data:", error);
