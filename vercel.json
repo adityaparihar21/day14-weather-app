@@ -1,0 +1,6 @@
+{
+  "name": "weatherhut",
+  "env": {
+    "API_KEY": "57dbac2c41d22362b72d8fccabb949cb"
+  }
+}

@@ -3,62 +3,249 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="A premium weather application showing real-time weather data.">
-    <title>Premium Weather App</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <title>WeatherHUT - Cinematic Experience</title>
+    <!-- Modern Thin/Premium Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="app-container">
-        <header>
-            <h1>Weather Explorer</h1>
-            <div class="search-box">
-                <input type="text" id="city-input" placeholder="Enter city name... (e.g. London)" autocomplete="off">
-                <button id="search-btn"><i class="fas fa-search"></i></button>
+    <!-- Living Animated Background Layer -->
+    <div class="bg-layer" id="bg-layer">
+        <div class="aurora aurora-1"></div>
+        <div class="aurora aurora-2"></div>
+        <div class="aurora aurora-3"></div>
+        <div class="noise-overlay"></div>
+        <div id="particle-container"></div>
+    </div>
+
+    <!-- Mouse Tracking Light Reflection -->
+    <div id="mouse-light"></div>
+
+    <div class="app-wrapper">
+        <!-- Floating Glass Search -->
+        <header class="search-header">
+            <div class="app-logo">WeatherHUT</div>
+            <div class="header-right">
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="city-input" placeholder="Search city..." autocomplete="off">
+                    <button id="search-btn">
+                        <span class="btn-glow"></span>
+                        <span class="btn-text">Search</span>
+                    </button>
+                </div>
+                <div class="location-badge hidden" id="location-badge">
+                    <i class="fas fa-map-marker-alt loc-icon"></i>
+                    <div class="loc-text">
+                        <p class="loc-city" id="loc-city">--</p>
+                        <p class="loc-state" id="loc-state">--</p>
+                    </div>
+                </div>
             </div>
         </header>
 
-        <main>
-            <div id="loading" class="hidden">
-                <div class="spinner"></div>
-                <p>Loading Weather...</p>
-            </div>
-
-            <div id="error-message" class="hidden">
-                <i class="fas fa-exclamation-triangle"></i>
-                <p id="error-text">City Not Found</p>
-            </div>
-
-            <div id="weather-card" class="hidden">
-                <h2 id="city-name">--</h2>
-                <div class="weather-main">
-                    <img id="weather-icon" src="" alt="Weather Icon">
-                    <div class="temp">
-                        <span id="temperature">--</span>°C
+        <!-- Main Content -->
+        <main id="main-content" class="hidden">
+            <!-- 3D Tilt Hero Card -->
+            <section class="hero-card" id="hero-card">
+                <div class="hero-inner">
+                    <div class="hero-header">
+                        <h1 id="city-name" class="city-name">--</h1>
+                        <p id="date-time" class="date-time">--</p>
                     </div>
-                </div>
-                <p id="weather-condition">--</p>
-                
-                <div class="weather-details">
-                    <div class="detail">
-                        <i class="fas fa-tint"></i>
-                        <div>
-                            <p class="detail-label">Humidity</p>
-                            <p id="humidity" class="detail-value">--%</p>
+                    
+                    <div class="weather-center">
+                        <div class="weather-icon-wrapper" id="hero-icon-wrapper">
+                            <div id="weather-emoji" class="hero-emoji"></div>
+                            <div class="icon-glow"></div>
+                        </div>
+                        <div class="temp-wrapper">
+                            <span id="temperature" class="temperature">--</span>
+                            <span class="unit">°</span>
                         </div>
                     </div>
-                    <div class="detail">
-                        <i class="fas fa-wind"></i>
-                        <div>
-                            <p class="detail-label">Wind Speed</p>
-                            <p id="wind-speed" class="detail-value">-- km/h</p>
+                    
+                    <div class="hero-footer">
+                        <div class="condition-wrapper">
+                            <p id="weather-condition" class="weather-condition">--</p>
+                            <p id="weather-phrase" class="weather-phrase">--</p>
+                        </div>
+                        <p id="feels-like" class="feels-like">Feels like --°</p>
+                    </div>
+                </div>
+                <!-- Shimmer Reflection -->
+                <div class="hero-reflection"></div>
+            </section>
+
+            <!-- Hourly Forecast (Horizontal Scroll) -->
+            <section class="hourly-forecast glass-panel">
+                <div class="hourly-header">
+                    <h3><i class="far fa-clock"></i> Today</h3>
+                </div>
+                <div class="hourly-container" id="hourly-container">
+                    <!-- Cards injected via JS -->
+                </div>
+            </section>
+
+            <!-- Details Grid -->
+            <section class="details-grid">
+                <!-- 5-Day Forecast -->
+                <div class="detail-card forecast-card glass-panel">
+                    <div class="card-header">
+                        <h4><i class="far fa-calendar-alt"></i> 5-Day Forecast</h4>
+                    </div>
+                    <div class="forecast-list" id="forecast-list">
+                        <!-- List injected via JS -->
+                    </div>
+                </div>
+
+                <div class="right-grid">
+                    <!-- Wind Compass -->
+                    <div class="detail-card square-card glass-panel metric-card" data-type="wind">
+                        <div class="card-header">
+                            <h4><i class="fas fa-wind"></i> Wind</h4>
+                        </div>
+                        <div class="wind-viz">
+                            <div class="compass" id="wind-compass">
+                                <div class="compass-marks"></div>
+                                <div class="arrow"><i class="fas fa-location-arrow"></i></div>
+                            </div>
+                            <div class="viz-value">
+                                <p id="wind-speed" class="val-large">--</p>
+                                <p class="val-label">km/h</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Humidity Ring -->
+                    <div class="detail-card square-card glass-panel metric-card" data-type="humidity">
+                        <div class="card-header">
+                            <h4><i class="fas fa-tint"></i> Humidity</h4>
+                        </div>
+                        <div class="ring-viz">
+                            <svg viewBox="0 0 100 100">
+                                <circle class="bg" cx="50" cy="50" r="40"></circle>
+                                <circle class="progress" id="humidity-ring" cx="50" cy="50" r="40"></circle>
+                            </svg>
+                            <div class="ring-content">
+                                <p id="humidity-val" class="val-large">--</p>
+                                <p class="val-label">%</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Air Quality -->
+                    <div class="detail-card square-card glass-panel metric-card" data-type="aqi">
+                        <div class="card-header">
+                            <h4><i class="fas fa-leaf"></i> Air Quality</h4>
+                        </div>
+                        <div class="aqi-viz">
+                            <p id="aqi-val" class="val-huge">--</p>
+                            <p id="aqi-desc" class="aqi-desc">--</p>
+                            <div class="aqi-bar">
+                                <div class="aqi-progress" id="aqi-progress"></div>
+                            </div>
+                            <p id="aqi-text-desc" class="aqi-text-desc">--</p>
+                        </div>
+                    </div>
+
+                    <!-- Pressure -->
+                    <div class="detail-card square-card glass-panel metric-card" data-type="pressure">
+                        <div class="card-header">
+                            <h4><i class="fas fa-tachometer-alt"></i> Pressure</h4>
+                        </div>
+                        <div class="viz-center">
+                            <p id="pressure-val" class="val-large">--</p>
+                            <p class="val-label">hPa</p>
+                        </div>
+                    </div>
+
+                    <!-- Sun Tracker -->
+                    <div class="detail-card wide-card glass-panel metric-card" data-type="sun">
+                        <div class="card-header">
+                            <h4><i class="fas fa-sun"></i> Sun Tracker</h4>
+                        </div>
+                        <div class="sun-viz">
+                            <div class="sun-arc-container">
+                                <svg viewBox="0 0 200 100" class="sun-arc">
+                                    <path class="arc-bg" d="M 20 90 A 80 80 0 0 1 180 90"></path>
+                                    <path class="arc-progress" id="sun-arc-progress" d="M 20 90 A 80 80 0 0 1 180 90"></path>
+                                    <circle class="sun-dot" id="sun-dot" cx="20" cy="90" r="6"></circle>
+                                </svg>
+                            </div>
+                            <div class="sun-times">
+                                <div>
+                                    <p class="small-label">Sunrise</p>
+                                    <p id="sunrise-time">--:--</p>
+                                </div>
+                                <div style="text-align: right;">
+                                    <p class="small-label">Sunset</p>
+                                    <p id="sunset-time">--:--</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Visibility -->
+                    <div class="detail-card square-card glass-panel metric-card" data-type="visibility">
+                        <div class="card-header">
+                            <h4><i class="far fa-eye"></i> Visibility</h4>
+                        </div>
+                        <div class="viz-center">
+                            <p id="visibility-val" class="val-large">--</p>
+                            <p class="val-label">km</p>
+                        </div>
+                    </div>
+
+                    <!-- Poetic Weather Insight -->
+                    <div class="detail-card wide-card glass-panel" data-type="poetry">
+                        <div class="card-header">
+                            <h4><i class="fas fa-feather-alt"></i> Poetic Insight</h4>
+                        </div>
+                        <div class="viz-center" style="text-align: center; padding: 0 1rem;">
+                            <p id="poetic-text" style="font-size: 1.3rem; font-style: italic; font-weight: 300; line-height: 1.5; color: var(--text-main);">--</p>
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
         </main>
+
+        <!-- Premium Loading State -->
+        <div id="loading" class="state-container hidden">
+            <div class="premium-loader">
+                <div class="loader-orbit"></div>
+                <div class="loader-core"></div>
+            </div>
+            <p class="loading-text">Gathering Atmosphere...</p>
+        </div>
+
+        <!-- Premium Error State -->
+        <div id="error-message" class="state-container hidden error-state glass-panel">
+            <i class="fas fa-exclamation-circle error-icon"></i>
+            <h2>Atmospheric Anomaly</h2>
+            <p id="error-text">City Not Found</p>
+            <button id="retry-btn">Try Again</button>
+        </div>
     </div>
+
+    <!-- Global Detailed Metrics Modal -->
+    <div id="metrics-modal" class="modal-backdrop hidden">
+        <div class="modal-content glass-panel">
+            <button class="modal-close" id="modal-close">&times;</button>
+            <div class="modal-header">
+                <i id="modal-icon" class="fas fa-chart-line"></i>
+                <h3 id="modal-title">Metric Details</h3>
+            </div>
+            <div class="modal-body">
+                <p id="modal-value" class="modal-value">--</p>
+                <p id="modal-unit" class="modal-unit">unit</p>
+                <div class="modal-divider"></div>
+                <p id="modal-desc" class="modal-desc">Description loading...</p>
+            </div>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
