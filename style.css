@@ -605,6 +605,20 @@ body {
     min-height: 450px;
 }
 
+.hero-card::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) translateZ(-50px);
+    width: 150%;
+    height: 150%;
+    background: radial-gradient(circle, var(--ambient-glow, transparent), transparent 70%);
+    pointer-events: none;
+    z-index: -1;
+    transition: background 1s ease;
+}
+
 /* =========================================
    CELESTIAL TRACKER
    ========================================= */

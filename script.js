@@ -747,6 +747,7 @@ function updateTheme(current) {
     let bgBase, bgDeep, surface1, textMain, glassHighlight;
     let cloudOpacity = 0.4;
     let fogOpacity = 0;
+    let ambientGlow = 'transparent';
     if (timeOfDay === 'morning') {
         bgBase = '#5582a8'; bgDeep = '#2c4a6b'; surface1 = 'rgba(255,255,255,0.1)'; 
         textMain = '#F0F4F8'; glassHighlight = 'rgba(255,255,255,0.2)';
@@ -762,6 +763,7 @@ function updateTheme(current) {
         textMain = '#E0E2EB'; glassHighlight = 'rgba(255, 255, 255, 0.05)';
         t1 = '#4A6984'; t2 = '#7A9E9F'; t3 = '#B8D8D8'; 
         cloudOpacity = 0.1; fogOpacity = 0.2;
+        ambientGlow = 'rgba(130, 170, 255, 0.12)';
     } else {
         // Afternoon
         bgBase = '#74add4'; bgDeep = '#437ba3'; surface1 = 'rgba(255,255,255,0.1)'; 
@@ -803,6 +805,7 @@ function updateTheme(current) {
     root.style.setProperty('--theme-2', t2);
     root.style.setProperty('--theme-3', t3);
     root.style.setProperty('--theme-shadow', t1 + '40');
+    root.style.setProperty('--ambient-glow', ambientGlow);
     
 
     // Celestial Tracker Logic
