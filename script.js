@@ -674,6 +674,9 @@ function updateTheme(current) {
         celestial.style.top = `${yPos}%`;
         celestial.style.transform = `translate(-50%, -50%)`;
     }
+    
+    // Render Atmospheric Particles
+    renderParticles(id, timeOfDay);
 }
 
 function animateValue(id, start, end, duration) {
@@ -694,4 +697,66 @@ function animateValue(id, start, end, duration) {
         }
     };
     window.requestAnimationFrame(step);
+}
+
+function renderParticles(id, timeOfDay) {
+    const container = document.getElementById('particle-container');
+    if (!container) return;
+    
+    // Clear previous particles
+    container.innerHTML = '';
+    
+    // Sunny/Clear
+    if (id === 800 && timeOfDay !== 'night') {
+        for(let i=0; i<30; i++) {
+            const p = document.createElement('div');
+            p.className = 'dust-particle';
+            p.style.left = `${Math.random() * 100}vw`;
+            p.style.top = `${Math.random() * 100}vh`;
+            p.style.animationDuration = `${10 + Math.random() * 20}s`;
+            p.style.animationDelay = `${Math.random() * 5}s`;
+            container.appendChild(p);
+        }
+    }
+    // Rain/Thunderstorm/Drizzle
+    else if (id >= 200 && id < 600 && id !== 211 && id !== 212 && id !== 221) { 
+        for(let i=0; i<100; i++) {
+            const drop = document.createElement('div');
+            drop.className = 'rain-drop';
+            drop.style.left = `${Math.random() * 100}vw`;
+            drop.style.animationDuration = `${0.5 + Math.random() * 0.5}s`;
+            drop.style.animationDelay = `${Math.random() * 2}s`;
+            container.appendChild(drop);
+        }
+        if(id >= 200 && id < 300) { // Thunderstorm
+            const flash = document.createElement('div');
+            flash.className = 'lightning-flash';
+            container.appendChild(flash);
+        }
+    }
+    // Snow
+    else if (id >= 600 && id < 700) {
+        for(let i=0; i<80; i++) {
+            const flake = document.createElement('div');
+            flake.className = 'snow-flake';
+            flake.style.left = `${Math.random() * 100}vw`;
+            flake.style.animationDuration = `${5 + Math.random() * 5}s`;
+            flake.style.animationDelay = `${Math.random() * 5}s`;
+            flake.style.opacity = Math.random() * 0.8 + 0.2;
+            flake.style.width = `${Math.random() * 6 + 2}px`;
+            flake.style.height = flake.style.width;
+            container.appendChild(flake);
+        }
+    }
+    // Fog / Mist / Dust
+    else if (id >= 700 && id < 800) {
+        for(let i=0; i<5; i++) {
+            const haze = document.createElement('div');
+            haze.className = 'fog-haze';
+            haze.style.animationDuration = `${20 + Math.random() * 20}s`;
+            haze.style.animationDelay = `${Math.random() * 5}s`;
+            haze.style.top = `${Math.random() * 100}vh`;
+            container.appendChild(haze);
+        }
+    }
 }
