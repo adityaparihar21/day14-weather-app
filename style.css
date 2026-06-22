@@ -631,6 +631,19 @@ body {
     pointer-events: none;
 }
 
+.celestial-path {
+    position: absolute;
+    top: -20%;
+    left: -10%;
+    width: 120%;
+    height: 120%;
+    border: 2px dashed rgba(255, 255, 255, 0.15);
+    border-bottom: none;
+    border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+    z-index: 0;
+    pointer-events: none;
+}
+
 .celestial-body {
     position: absolute;
     width: 250px;
