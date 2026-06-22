@@ -100,8 +100,9 @@ body {
 #globe-viz {
     position: fixed;
     bottom: 0;
-    left: 0;
-    transform: translate(-50%, 50%);
+    right: 0;
+    left: auto;
+    transform: translate(50%, 50%);
     width: 120vw !important;
     height: 120vw !important;
     z-index: -5;
@@ -1357,15 +1358,34 @@ body {
 }
 
 @media (max-width: 600px) {
-    .hero-card { padding: 2rem 1rem; min-height: 350px; }
-    .city-name { font-size: 1.8rem; }
-    .temperature { font-size: 6rem; letter-spacing: -3px; }
-    .unit { font-size: 2.5rem; }
-    .weather-center { gap: 1rem; }
-    .right-grid { grid-template-columns: 1fr; grid-auto-rows: minmax(160px, auto); }
+    .hero-card { padding: 1.5rem 1rem; min-height: 300px; }
+    .city-name { font-size: 1.5rem; }
+    .temperature { font-size: 5rem; letter-spacing: -2px; }
+    .unit { font-size: 2rem; }
+    .weather-center { gap: 0.5rem; flex-direction: column; align-items: flex-start; }
+    .hero-icon-wrapper img { width: 60px; height: 60px; }
+    
+    .right-grid { grid-template-columns: 1fr; grid-auto-rows: minmax(140px, auto); gap: 1rem; }
     .wide-card { grid-column: span 1; }
     .details-grid { gap: 1rem; }
-    .app-wrapper { padding: 1rem; }
+    .app-wrapper { padding: 0.5rem; }
+    
+    /* Typography scaling for mobile */
+    .search-box input { font-size: 1rem; }
+    .card-header h4 { font-size: 0.9rem; }
+    .val-huge { font-size: 2.5rem !important; }
+    #poetic-text { font-size: 1.1rem !important; line-height: 1.5; }
+    
+    /* Sun Arc scaling */
+    .sun-arc-container { max-width: 100%; padding: 0 1rem; }
+    .sun-times { font-size: 0.9rem; }
+    .sun-times p { font-size: 1.2rem !important; }
+}
+
+@media (max-width: 400px) {
+    .temperature { font-size: 4rem; }
+    #hero-aqi-badge { font-size: 0.8rem; padding: 0.4rem 0.8rem; }
+    .val-huge { font-size: 2rem !important; }
 }
 
 /* =========================================
