@@ -8,6 +8,8 @@
     <link href="https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500,300,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <!-- WebGL Dependencies -->
+    <script src="//unpkg.com/globe.gl"></script>
 </head>
 <body>
     <!-- Living Animated Background Layer -->
@@ -19,7 +21,13 @@
         <div id="particle-container"></div>
     </div>
 
-    <!-- Mouse Tracking Light Reflection -->
+    <!-- Environment Engine -->
+    <div id="sky-gradient" class="env-layer"></div>
+    <div id="clouds-layer" class="env-layer"></div>
+    <div id="mountains-layer" class="env-layer"></div>
+    <div id="fog-layer" class="env-layer"></div>
+    
+    <div id="particles-js"></div>
     <div id="mouse-light"></div>
 
     <div class="app-wrapper">
@@ -80,6 +88,16 @@
                 </div>
                 <!-- Shimmer Reflection -->
                 <div class="hero-reflection"></div>
+            </section>
+
+            <!-- Interactive WebGL Globe -->
+            <section class="story-section globe-section scroll-reveal" style="margin-top: 4rem;">
+                <div class="detail-card wide-card glass-panel" style="width: 100%; max-width: 1000px; height: 500px; margin: 0 auto; position: relative; overflow: hidden; padding: 0;">
+                    <div id="globe-viz" style="width: 100%; height: 100%;"></div>
+                    <div class="card-header" style="position: absolute; top: 1.5rem; left: 1.5rem; z-index: 10;">
+                        <h4><i class="fas fa-globe-americas"></i> WebGL Explorer</h4>
+                    </div>
+                </div>
             </section>
 
             <!-- Hourly Forecast (Horizontal Scroll) -->

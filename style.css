@@ -61,54 +61,40 @@ body {
 /* =========================================
    BACKGROUND & ENVIRONMENT
    ========================================= */
-.bg-layer {
+.env-layer {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    pointer-events: none;
     z-index: -2;
-    overflow: hidden;
-    background: radial-gradient(circle at center, var(--bg-deep) 0%, var(--bg-base) 100%);
+    transition: background 3s var(--ease-fluid), opacity 3s var(--ease-fluid);
 }
 
-.aurora {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(90px);
-    opacity: 0.35;
-    animation: float 25s infinite alternate ease-in-out;
-    will-change: transform;
+#sky-gradient {
+    z-index: -5;
+    background: linear-gradient(180deg, var(--bg-deep), var(--bg-base));
 }
 
-.aurora-1 {
-    width: 60vw;
-    height: 60vw;
-    background: radial-gradient(circle, var(--theme-1), transparent 70%);
-    top: -20%;
-    left: -10%;
-    animation-delay: 0s;
+#clouds-layer {
+    z-index: -4;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1440 320' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='rgba(255,255,255,0.1)' d='M0,160L48,144C96,128,192,96,288,96C384,96,480,128,576,149.3C672,171,768,181,864,160C960,139,1056,85,1152,74.7C1248,64,1344,96,1392,112L1440,128L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z'%3E%3C/path%3E%3C/svg%3E");
+    background-size: cover;
+    background-position: top center;
+    opacity: var(--cloud-opacity, 0.4);
+    transition: opacity 3s var(--ease-fluid);
 }
 
-.aurora-2 {
-    width: 50vw;
-    height: 50vw;
-    background: radial-gradient(circle, var(--theme-2), transparent 70%);
-    bottom: -10%;
-    right: -10%;
-    animation-delay: -5s;
-    animation-duration: 30s;
+#mountains-layer {
+    z-index: -3;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1440 320' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='rgba(255,255,255,0.05)' d='M0,224L48,208C96,192,192,160,288,160C384,160,480,192,576,202.7C672,213,768,203,864,181.3C960,160,1056,128,1152,133.3C1248,139,1344,181,1392,202.7L1440,224L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
+    background-size: cover;
+    background-position: bottom center;
 }
 
-.aurora-3 {
-    width: 40vw;
-    height: 40vw;
-    background: radial-gradient(circle, var(--theme-3), transparent 70%);
-    top: 30%;
-    left: 30%;
-    opacity: 0.25;
-    animation-delay: -10s;
-    animation-duration: 20s;
+#fog-layer {
+    z-index: -2;
+    background: linear-gradient(180deg, transparent 50%, rgba(255,255,255,var(--fog-opacity, 0)));
+    transition: opacity 3s var(--ease-fluid), background 3s var(--ease-fluid);
 }
 
 .noise-overlay {
@@ -140,11 +126,11 @@ body {
     pointer-events: none;
     z-index: 999;
     background: radial-gradient(
-        500px circle at var(--mouse-x) var(--mouse-y),
-        var(--theme-shadow),
-        transparent 40%
+        400px circle at var(--mouse-x) var(--mouse-y),
+        rgba(255,255,255,0.18),
+        transparent 70%
     );
-    mix-blend-mode: screen;
+    mix-blend-mode: overlay;
 }
 
 /* =========================================
@@ -167,12 +153,41 @@ body {
     -webkit-backdrop-filter: blur(30px);
     border: 1px solid var(--glass-border);
     border-radius: 24px;
+    position: relative;
+    overflow: hidden;
     /* Colored Shadows instead of pure black */
     box-shadow: 
         0 8px 32px 0 rgba(11, 11, 12, 0.7),
         0 0 20px var(--theme-shadow),
         inset 0 1px 1px var(--glass-highlight);
     transition: transform 0.4s var(--ease-fluid), box-shadow 0.4s var(--ease-fluid), border-color 0.4s var(--ease-fluid);
+}
+
+.glass-panel::before {
+    content: '';
+    position: absolute;
+    top: 0; 
+    left: -150%;
+    width: 50%; 
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+    transform: skewX(-15deg);
+    animation: glass-reflection 15s infinite;
+    pointer-events: none;
+}
+
+@keyframes glass-reflection {
+    0%, 85% { left: -150%; }
+    100% { left: 250%; }
+}
+
+.glass-panel:hover::before {
+    animation: glass-reflection-hover 2s infinite;
+}
+
+@keyframes glass-reflection-hover {
+    0% { left: -150%; }
+    100% { left: 250%; }
 }
 
 .glass-panel:hover {

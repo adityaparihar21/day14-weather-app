@@ -289,6 +289,12 @@ async function fetchWeatherDataByCoords(lat, lon) {
 function renderWeather(data) {
     const { current, forecast, airQuality } = data;
     
+    // Update WebGL Globe Camera
+    if (window.myGlobe && current.coord) {
+        window.myGlobe.pointOfView({ lat: current.coord.lat, lng: current.coord.lon, altitude: 1.5 }, 2000);
+        window.myGlobe.pointsData([{ lat: current.coord.lat, lng: current.coord.lon, label: current.name }]);
+    }
+
     updateTheme(current);
     // Location badge is explicitly not updated here to keep the user's GPS location pinned
     renderHero(current);
@@ -660,33 +666,48 @@ function updateTheme(current) {
     // Base colors based on condition
     let t1, t2, t3;
     let bgBase, bgDeep, surface1, textMain, glassHighlight;
-
+    let cloudOpacity = 0.4;
+    let fogOpacity = 0;
     if (timeOfDay === 'morning') {
-        bgBase = '#2B3A4A'; bgDeep = '#1A2430'; surface1 = '#3A4A5A'; 
-        textMain = '#F0F4F8'; glassHighlight = 'rgba(255,255,255,0.15)';
-        t1 = '#E2B882'; t2 = '#D4A373'; t3 = '#FAEDCD'; 
+        bgBase = '#5582a8'; bgDeep = '#2c4a6b'; surface1 = 'rgba(255,255,255,0.1)'; 
+        textMain = '#F0F4F8'; glassHighlight = 'rgba(255,255,255,0.2)';
+        t1 = '#FFB26B'; t2 = '#FFD56F'; t3 = '#FAEDCD'; 
+        cloudOpacity = 0.4; fogOpacity = 0.1;
     } else if (timeOfDay === 'sunset') {
-        bgBase = '#3D2314'; bgDeep = '#201007'; surface1 = '#5A3420'; 
+        bgBase = '#ab5b49'; bgDeep = '#4a2520'; surface1 = 'rgba(255,255,255,0.1)'; 
         textMain = '#FFF4EB'; glassHighlight = 'rgba(255,255,255,0.2)';
         t1 = '#FF7B54'; t2 = '#FFB26B'; t3 = '#FFD56F'; 
+        cloudOpacity = 0.6; fogOpacity = 0;
     } else if (timeOfDay === 'night') {
-        bgBase = '#111218'; bgDeep = '#0B0C10'; surface1 = 'rgba(26, 28, 41, 0.6)'; 
+        bgBase = '#13284A'; bgDeep = '#071126'; surface1 = 'rgba(26, 28, 41, 0.4)'; 
         textMain = '#E0E2EB'; glassHighlight = 'rgba(255, 255, 255, 0.05)';
-        t1 = '#323652'; t2 = '#4A5073'; t3 = '#6C739A'; 
+        t1 = '#4A6984'; t2 = '#7A9E9F'; t3 = '#B8D8D8'; 
+        cloudOpacity = 0.1; fogOpacity = 0.2;
     } else {
-        // Afternoon (Default Warm)
-        bgBase = '#2A1E1A'; bgDeep = '#201713'; surface1 = '#4A362D'; 
-        textMain = '#FFF9F4'; glassHighlight = 'rgba(255, 255, 255, 0.22)';
-        t1 = '#C86B4A'; t2 = '#E28A62'; t3 = '#F2C572'; 
+        // Afternoon
+        bgBase = '#74add4'; bgDeep = '#437ba3'; surface1 = 'rgba(255,255,255,0.1)'; 
+        textMain = '#ffffff'; glassHighlight = 'rgba(255, 255, 255, 0.22)';
+        t1 = '#FFD56F'; t2 = '#FAEDCD'; t3 = '#ffffff'; 
+        cloudOpacity = 0.3; fogOpacity = 0;
     }
 
-    // Override themes for severe weather
+    // Override themes for severe weather (Weather Theme Engine)
+    document.body.className = ''; // reset classes
     if (id >= 200 && id < 600) { // Rain/Thunderstorm
-        bgBase = '#1B2631'; bgDeep = '#10171E'; surface1 = '#2C3E50';
+        bgBase = '#1B2631'; bgDeep = '#0c1218'; surface1 = 'rgba(0,0,0,0.3)';
         t1 = '#4A6984'; t2 = '#7A9E9F'; t3 = '#B8D8D8'; 
+        cloudOpacity = 0.8; fogOpacity = 0.4;
+        document.body.classList.add(id >= 200 && id < 300 ? 'theme-storm' : 'theme-rain');
     } else if (id >= 600 && id < 700) { // Snow
-        bgBase = '#34495E'; bgDeep = '#2C3E50'; surface1 = '#465C70';
+        bgBase = '#556d82'; bgDeep = '#34495E'; surface1 = 'rgba(255,255,255,0.2)';
         t1 = '#8CA8C6'; t2 = '#C2D3E4'; t3 = '#E6EEF5'; 
+        cloudOpacity = 0.9; fogOpacity = 0.5;
+        document.body.classList.add('theme-snow');
+    } else if (id >= 700 && id < 800) { // Fog/Mist
+        cloudOpacity = 0; fogOpacity = 0.8;
+        document.body.classList.add('theme-fog');
+    } else if (id === 800) {
+        document.body.classList.add('theme-sunny');
     }
 
     root.style.setProperty('--bg-base', bgBase);
@@ -694,6 +715,8 @@ function updateTheme(current) {
     root.style.setProperty('--surface-1', surface1);
     root.style.setProperty('--text-main', textMain);
     root.style.setProperty('--glass-highlight', glassHighlight);
+    root.style.setProperty('--cloud-opacity', cloudOpacity);
+    root.style.setProperty('--fog-opacity', fogOpacity);
     
     root.style.setProperty('--theme-1', t1);
     root.style.setProperty('--theme-2', t2);
@@ -880,4 +903,44 @@ document.addEventListener('DOMContentLoaded', () => {
             scrollObserver.observe(el);
         });
     }, 500);
+
+    // Interactive WebGL Globe Initialization
+    const globeContainer = document.getElementById('globe-viz');
+    if (globeContainer && window.Globe) {
+        window.myGlobe = Globe()
+            (globeContainer)
+            .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
+            .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
+            .backgroundColor('rgba(0,0,0,0)') // Transparent background to show glass
+            .showAtmosphere(true)
+            .atmosphereColor('lightskyblue')
+            .atmosphereAltitude(0.15)
+            .width(globeContainer.clientWidth)
+            .height(globeContainer.clientHeight);
+
+        // Auto rotate
+        window.myGlobe.controls().autoRotate = true;
+        window.myGlobe.controls().autoRotateSpeed = 0.5;
+        window.myGlobe.controls().enableZoom = false; // keep scroll smooth
+
+        // Default pins
+        const defaultPins = [
+            { lat: 28.6139, lng: 77.2090, label: 'Delhi' },
+            { lat: 19.0760, lng: 72.8777, label: 'Mumbai' },
+            { lat: 51.5074, lng: -0.1278, label: 'London' },
+            { lat: 40.7128, lng: -74.0060, label: 'New York' },
+            { lat: 35.6762, lng: 139.6503, label: 'Tokyo' }
+        ];
+
+        window.myGlobe.pointsData(defaultPins)
+            .pointAltitude(0)
+            .pointColor(() => '#FF8C7A')
+            .pointRadius(0.8);
+
+        // Resize listener
+        window.addEventListener('resize', () => {
+            window.myGlobe.width(globeContainer.clientWidth);
+            window.myGlobe.height(globeContainer.clientHeight);
+        });
+    }
 });
